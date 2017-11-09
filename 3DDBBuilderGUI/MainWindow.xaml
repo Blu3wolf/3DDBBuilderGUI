@@ -1,0 +1,29 @@
+﻿<Window x:Class="_3DDBBuilderGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_3DDBBuilderGUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <TabControl HorizontalAlignment="Left" Height="214" Margin="10,10,0,0" VerticalAlignment="Top" Width="497">
+            <TabItem Header="Exchange">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="List Parents">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="Build" >
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="Update" >
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="Test DB" >
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
