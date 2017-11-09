@@ -5,14 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_3DDBBuilderGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="F4-3DDBBuilder" Height="350" Width="525">
     <Grid>
         <TabControl HorizontalAlignment="Left" Height="214" Margin="10,10,0,0" VerticalAlignment="Top" Width="497">
-            <TabItem Header="Exchange">
-                <Grid Background="#FFE5E5E5"/>
+            <TabItem Header="Extract">
+                <Grid Background="#FFE5E5E5">
+                    <ComboBox Height="25" Margin="105,42,10,115"/>
+                    <Button x:Name="SourceSelectButton" Content="Select..." HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="80" Height="26" Click="SourceSelectButton_Click"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="10,103,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="345"/>
+                    <Button x:Name="DestSelectButton" Content="Select..." HorizontalAlignment="Left" Margin="360,103,0,0" VerticalAlignment="Top" Width="117" Click="DestSelectButton_Click"/>
+                    <Label Content="Specify location of Object folder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Specify destination for extracted DB" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top"/>
+                </Grid>
             </TabItem>
             <TabItem Header="List Parents">
-                <Grid Background="#FFE5E5E5"/>
             </TabItem>
             <TabItem Header="Build" >
                 <Grid Background="#FFE5E5E5"/>
@@ -23,6 +29,7 @@
             <TabItem Header="Test DB" >
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
+
         </TabControl>
 
     </Grid>

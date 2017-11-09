@@ -24,5 +24,15 @@ namespace _3DDBBuilderGUI
         {
             InitializeComponent();
         }
+
+        private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DestSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
