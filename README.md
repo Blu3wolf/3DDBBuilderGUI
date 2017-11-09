@@ -19,7 +19,7 @@ F4_3DDBBuilder is the work of Mike Rivers and the BMS Developers. Attribution is
 
 The two works are released as an aggregate, but are not licensed collectively. The GPL applies only to the GUI. 
 
-3DDBBuilderGUI - A graphics user interface wrapper for F4_3DDBBuilder
+### 3DDBBuilderGUI - A graphics user interface wrapper for F4_3DDBBuilder
 Copyright © 2017  Bill 'Blu3wolf' Teale
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
