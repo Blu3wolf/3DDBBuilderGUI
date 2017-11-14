@@ -49,9 +49,17 @@ namespace _3DDBBuilderGUI
             {
                 //react appropriately
             }
+
+            extractionPath = "Path to extract database to TEST";
+
+            DataContext = this;
         }
 
         private string BMSInstall;
+
+        private string extractionPath;
+
+        public string ExtractionPath { get => extractionPath; set => extractionPath = value; }
 
         private bool DBExists(string path)
         {
@@ -71,10 +79,10 @@ namespace _3DDBBuilderGUI
             var dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
             dialog.EnsureReadOnly = true;
+            dialog.Multiselect = false;
             dialog.Title = "Select Objects Folder...";
             dialog.InitialDirectory = BMSInstall += "\\Data\\Terrdata";
-            CommonFileDialogResult result = dialog.ShowDialog();
-            if (result == CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
                 if (DBExists(dir))
@@ -92,7 +100,19 @@ namespace _3DDBBuilderGUI
 
         private void DestSelectButton_Click(object sender, RoutedEventArgs e)
         {
-
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            dialog.Multiselect = false;
+            dialog.Title = "Select folder to extract Database to...";
+            dialog.InitialDirectory = "Desktop";
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var dir = dialog.FileName;
+                if (File.Exists(dir))
+                {
+                    extractionPath = dir;
+                }
+            }
         }
     }
 }

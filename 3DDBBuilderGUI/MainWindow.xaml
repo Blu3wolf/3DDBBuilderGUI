@@ -12,13 +12,15 @@
                 <Grid Background="#FFE5E5E5">
                     <ComboBox x:Name="DBBox" Height="25" Margin="105,42,10,115"/>
                     <Button x:Name="SourceSelectButton" Content="Select..." HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="80" Height="26" Click="SourceSelectButton_Click"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="10,103,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="345"/>
+                    <TextBox x:Name="ExtractionTextBox" HorizontalAlignment="Left" Height="23" Margin="10,103,0,0" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=ExtractionPath}" VerticalAlignment="Top" Width="345"/>
                     <Button x:Name="DestSelectButton" Content="Select..." HorizontalAlignment="Left" Margin="360,103,0,0" VerticalAlignment="Top" Width="117" Click="DestSelectButton_Click"/>
                     <Label Content="Specify location of Object folder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                     <Label Content="Specify destination for extracted DB" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top"/>
+                    <Button Content="Extract" HorizontalAlignment="Left" Margin="213,150,0,0" VerticalAlignment="Top" Width="75"/>
                 </Grid>
             </TabItem>
             <TabItem Header="List Parents">
+                <Grid Background="#FFE5E5E5"/>
             </TabItem>
             <TabItem Header="Build" >
                 <Grid Background="#FFE5E5E5"/>
