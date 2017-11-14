@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.Win32;
+using System.IO;
 
 namespace _3DDBBuilderGUI
 {
@@ -52,6 +53,19 @@ namespace _3DDBBuilderGUI
 
         private string BMSInstall;
 
+        private bool DBExists(string path)
+        {
+            string filepath = path += "\\KoreaObj.LOD";
+            if (File.Exists(filepath))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog();
@@ -60,6 +74,20 @@ namespace _3DDBBuilderGUI
             dialog.Title = "Select Objects Folder...";
             dialog.InitialDirectory = BMSInstall += "\\Data\\Terrdata";
             CommonFileDialogResult result = dialog.ShowDialog();
+            if (result == CommonFileDialogResult.Ok)
+            {
+                var dir = dialog.FileName;
+                if (DBExists(dir))
+                {
+                    int item = DBBox.Items.Add(dir);
+                    DBBox.SelectedIndex = item;
+                }
+                else
+                {
+                    string file = "Error: Could not find a database at " + dir;
+                    MessageBox.Show(file);
+                }
+            }
         }
 
         private void DestSelectButton_Click(object sender, RoutedEventArgs e)
