@@ -18,16 +18,14 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            
-                        </Grid>
-                        <Grid Grid.Row="0">
-                            <Label Content="Specify location of Object folder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                            <StackPanel>
-                                
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="10,10,0,0">
-                                <Button x:Name="SourceSelectButton" Content="Select..." Width="80" Height="26" Click="SourceSelectButton_Click"/>
-                                <ComboBox x:Name="DBBox" Height="25" />
+                            <StackPanel Margin="10,10,0,0">
+                                <Label Content="Specify location of Object folder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                                <Grid Grid.Column="0">
+                                    <Button x:Name="SourceSelectButton" Content="Select..." Width="80" Height="26" Click="SourceSelectButton_Click"/>
+                                </Grid>
+                                <Grid Grid.Column="1">
+                                    <ComboBox x:Name="DBBox" Height="25" />
+                                </Grid>
                             </StackPanel>
                         </Grid>
                     </Grid>
