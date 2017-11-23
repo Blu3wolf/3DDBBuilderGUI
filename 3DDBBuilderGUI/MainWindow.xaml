@@ -7,35 +7,22 @@
         mc:Ignorable="d"
         Title="F4-3DDBBuilder" Height="350" Width="525">
     <Grid>
-        <TabControl HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top">
+        <TabControl HorizontalAlignment="Left" VerticalAlignment="Top">
             <TabItem Header="Extract">
                 <Grid Background="#FFE5E5E5">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <StackPanel Margin="10,10,0,0">
-                                <Label Content="Specify location of Object folder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                                <Grid Grid.Column="0">
-                                    <Button x:Name="SourceSelectButton" Content="Select..." Width="80" Height="26" Click="SourceSelectButton_Click"/>
-                                </Grid>
-                                <Grid Grid.Column="1">
-                                    <ComboBox x:Name="DBBox" Height="25" />
-                                </Grid>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-                    
-                    
-                    <TextBox x:Name="ExtractionTextBox" HorizontalAlignment="Left" Height="23" Margin="10,103,0,0" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=ExtractionPath}" VerticalAlignment="Top" Width="345"/>
-                    <Button x:Name="DestSelectButton" Content="Select..." HorizontalAlignment="Left" Margin="360,103,0,0" VerticalAlignment="Top" Width="117" Click="DestSelectButton_Click"/>
-                    
-                    <Label Content="Specify destination for extracted DB" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top"/>
-                    <Button Content="Extract" HorizontalAlignment="Left" Margin="213,150,0,0" VerticalAlignment="Top" Width="75"/>
+                    <StackPanel>
+                        <Label Content="Specify location of Object folder"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="SourceSelectButton" Content="Select..." Click="SourceSelectButton_Click"/>
+                            <ComboBox x:Name="DBBox" />
+                        </StackPanel>
+                        <Label Content="Specify destination for extracted DB"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=ExtractionPath}" />
+                            <Button x:Name="DestSelectButton" Content="Select..." Click="DestSelectButton_Click"/>
+                        </StackPanel>
+                        <Button Content="Extract"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="List Parents">
