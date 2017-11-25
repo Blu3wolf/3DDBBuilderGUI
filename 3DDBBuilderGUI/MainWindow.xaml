@@ -19,7 +19,8 @@
             <Setter Property="Margin" Value="10,0,0,0" />
         </Style>
     </Window.Resources>
-    <Grid>
+    <DockPanel>
+        <Label Content="Status Line (You shouldnt see this text though)" DockPanel.Dock="Bottom" />
         <TabControl >
             <TabItem Header="Extract">
                 <Grid Background="#FFE5E5E5">
@@ -50,8 +51,6 @@
             <TabItem Header="Test DB" >
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-
         </TabControl>
-
-    </Grid>
+    </DockPanel>
 </Window>
