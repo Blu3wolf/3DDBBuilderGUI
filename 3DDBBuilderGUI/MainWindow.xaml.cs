@@ -31,30 +31,18 @@ namespace _3DDBBuilderGUI
             // to do still
 
             // load default Object folder location from registry
-            /*try
-            {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Benchmark Sims\\Falcon BMS 4.33 U1"))
-                {
-                    if (key != null)
-                    {
-                        Object o = key.GetValue("baseDir");
-                        if (o != null)
-                        {
-                            BMSInstall = o.ToString();  
-                        }
-                    }
-                }
-            }
-            catch (Exception)  //just for demonstration...it's always best to handle specific exceptions
-            {
-                //react appropriately
-            }*/
-
             using (RegistryKey view32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
             {
-                using (RegistryKey clsid = view32.OpenSubKey(@"Software\Classes\CLSID\", false))
+                using (RegistryKey bmskey = view32.OpenSubKey(@"Software\Benchmark Sims\Falcon BMS 4.33 U1", false))
                 {
-                    //figure out what goes here after work tonight
+                    if (bmskey != null)
+                    {
+                        Object dir = bmskey.GetValue("baseDir");
+                        if (dir != null)
+                        {
+                            BMSInstall = dir.ToString();
+                        }
+                    }
                 }
             }
 
@@ -71,7 +59,7 @@ namespace _3DDBBuilderGUI
 
         private bool DBExists(string path)
         {
-            string filepath = path += "\\KoreaObj.LOD";
+            string filepath = path += @"\KoreaObj.LOD";
             if (File.Exists(filepath))
             {
                 return true;
@@ -89,7 +77,7 @@ namespace _3DDBBuilderGUI
             dialog.EnsureReadOnly = true;
             dialog.Multiselect = false;
             dialog.Title = "Select Objects Folder...";
-            dialog.InitialDirectory = BMSInstall += "\\Data\\Terrdata";
+            dialog.InitialDirectory = BMSInstall += @"\Data\Terrdata";
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
