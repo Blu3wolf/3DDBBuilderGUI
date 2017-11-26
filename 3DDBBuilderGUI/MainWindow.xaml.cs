@@ -15,13 +15,14 @@ using System.Windows.Shapes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.Win32;
 using System.IO;
+using System.ComponentModel;
 
 namespace _3DDBBuilderGUI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public MainWindow()
         {
@@ -29,6 +30,7 @@ namespace _3DDBBuilderGUI
 
             // load previously used Object folder locations
             // to do still
+            // where should that get saved? appinfo?
 
             // load default Object folder location from registry
             using (RegistryKey view32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
@@ -55,7 +57,17 @@ namespace _3DDBBuilderGUI
 
         private string extractionPath;
 
-        public string ExtractionPath { get => extractionPath; set => extractionPath = value; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string ExtractionPath
+        {
+            get => extractionPath;
+            set
+            {
+                extractionPath = value;
+                PropertyChanged(this, )
+            }
+        }
 
         private bool DBExists(string path)
         {
@@ -100,13 +112,21 @@ namespace _3DDBBuilderGUI
             dialog.IsFolderPicker = true;
             dialog.Multiselect = false;
             dialog.Title = "Select folder to extract Database to...";
-            dialog.InitialDirectory = "Desktop";
+            if (Directory.Exists(ExtractionPath))
+            {
+                dialog.InitialDirectory = ExtractionPath;
+            }
+            else
+            {
+                dialog.InitialDirectory = "Desktop";
+            }
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
-                if (File.Exists(dir))
+                if (Directory.Exists(dir))
                 {
                     extractionPath = dir;
+
                 }
             }
         }
