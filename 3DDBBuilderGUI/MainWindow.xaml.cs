@@ -65,7 +65,7 @@ namespace _3DDBBuilderGUI
             set
             {
                 extractionPath = value;
-                PropertyChanged(this, )
+                PropertyChanged(this, new PropertyChangedEventArgs("ExtractionPath"));
             }
         }
 
@@ -118,14 +118,14 @@ namespace _3DDBBuilderGUI
             }
             else
             {
-                dialog.InitialDirectory = "Desktop";
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
                 if (Directory.Exists(dir))
                 {
-                    extractionPath = dir;
+                    ExtractionPath = dir;
 
                 }
             }
