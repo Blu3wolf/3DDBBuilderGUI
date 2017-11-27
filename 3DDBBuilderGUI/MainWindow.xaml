@@ -20,7 +20,7 @@
         </Style>
     </Window.Resources>
     <DockPanel>
-        <Label Content="Status Line (You shouldnt see this text though)" DockPanel.Dock="Bottom" />
+        <Label x:Name="statuslabel" Content="Status Line (You shouldnt see this text though)" DockPanel.Dock="Bottom" />
         <TabControl >
             <TabItem Header="Extract">
                 <Grid Background="#FFE5E5E5">
@@ -35,7 +35,7 @@
                             <Button x:Name="DestSelectButton" Content="Select..." Click="DestSelectButton_Click" Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
                             <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=ExtractionPath}" />
                         </DockPanel>
-                        <Button Content="Extract" Margin="10" Style="{StaticResource WFButton}"/>
+                        <Button Content="Extract" Click="ExtrButton_Click" Margin="10" Style="{StaticResource WFButton}"/>
                     </StackPanel>
                 </Grid>
             </TabItem>

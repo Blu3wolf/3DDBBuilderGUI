@@ -130,5 +130,45 @@ namespace _3DDBBuilderGUI
                 }
             }
         }
+
+        private void ExtrButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DBExists(DBBox.Text))
+            {
+                string command = "/objectdir " + DBBox.Text + " /extract " + ExtractionPath;
+                ExCommand(command);
+            }
+            else
+            {
+                MessageBox.Show("The DB could not be found at " + DBBox.Text);
+            }
+        }
+
+        private void ExCommand(string command)
+        {
+            // add a function to check to see if the exe is co-located here?
+
+            using (var process = new System.Diagnostics.Process())
+            {
+                try
+                {
+                    System.Diagnostics.ProcessStartInfo startinfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c 3ddb_builder.exe " + command);
+                    MessageBox.Show(command);
+                    startinfo.RedirectStandardOutput = true;
+                    startinfo.UseShellExecute = false;
+                    startinfo.CreateNoWindow = true;
+                    process.StartInfo = startinfo;
+                    process.Start();
+                    string result = process.StandardOutput.ReadToEnd();
+                    statuslabel.Content = result;
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+            
+        }
     }
 }
