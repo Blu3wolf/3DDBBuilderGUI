@@ -135,7 +135,7 @@ namespace _3DDBBuilderGUI
         {
             if (DBExists(DBBox.Text))
             {
-                string command = "/objectdir " + DBBox.Text + " /extract " + ExtractionPath;
+                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /extract " + "\"" + ExtractionPath + "\"";
                 ExCommand(command);
             }
             else
@@ -152,19 +152,17 @@ namespace _3DDBBuilderGUI
             {
                 try
                 {
-                    System.Diagnostics.ProcessStartInfo startinfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c 3ddb_builder.exe " + command);
-                    MessageBox.Show(command);
+                    string args = @"/c " + command;
+                    System.Diagnostics.ProcessStartInfo startinfo = new System.Diagnostics.ProcessStartInfo("3ddb_builder.exe", args);
                     startinfo.RedirectStandardOutput = true;
                     startinfo.UseShellExecute = false;
                     startinfo.CreateNoWindow = true;
                     process.StartInfo = startinfo;
                     process.Start();
                     string result = process.StandardOutput.ReadToEnd();
-                    statuslabel.Content = result;
                 }
                 catch (Exception)
                 {
-
                     throw;
                 }
             }
