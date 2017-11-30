@@ -146,12 +146,16 @@ namespace _3DDBBuilderGUI
 
         private void ListParents(object sender, RoutedEventArgs e)
         {
-            if (DBExists(DBBox.Text))
+            if (DBExists(LPDBBox.Text))
             {
-                // before this we need to replace DBBox with a control actually on the List Parents tab.
-                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /parents";
+                string command = @"/objectdir " + "\"" + LPDBBox.Text + "\"" + @" /parents";
                 ExCommand(command);
-                // then figure out what to do with the newly generated UnusedParents.txt file
+                statuslabel.Content = "Success!";
+                // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
+            }
+            else
+            {
+                MessageBox.Show("The DB could not be found at " + LPDBBox.Text);
             }
         }
 
@@ -178,6 +182,30 @@ namespace _3DDBBuilderGUI
                 }
             }
             
+        }
+
+        private void LPSourceSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            dialog.EnsureReadOnly = true;
+            dialog.Multiselect = false;
+            dialog.Title = "Select Objects Folder...";
+            dialog.InitialDirectory = BMSInstall += @"\Data\Terrdata";
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var dir = dialog.FileName;
+                if (DBExists(dir))
+                {
+                    int item = LPDBBox.Items.Add(dir);
+                    LPDBBox.SelectedIndex = item;
+                }
+                else
+                {
+                    string file = "Error: Could not find a database at " + dir;
+                    MessageBox.Show(file);
+                }
+            }
         }
     }
 }

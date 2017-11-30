@@ -40,7 +40,16 @@
                 </Grid>
             </TabItem>
             <TabItem Header="List Parents">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <StackPanel>
+                        <Label Content="Specify location of Object folder"/>
+                        <DockPanel>
+                            <Button x:Name="LPSourceSelectButton" Content="Select..." Click="LPSourceSelectButton_Click" Style="{StaticResource WFButton}"/>
+                            <ComboBox x:Name="LPDBBox" Margin="0,0,10,0"/>
+                        </DockPanel>
+                        <Button Content="List Parents" Click="ListParents" Margin="10" Style="{StaticResource WFButton}"/>
+                    </StackPanel>
+                </Grid>
             </TabItem>
             <TabItem Header="Build" >
                 <Grid Background="#FFE5E5E5"/>
