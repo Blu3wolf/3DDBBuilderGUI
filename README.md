@@ -3,6 +3,8 @@
 
 Releases here package 3DDBBuilderGUI and F4_3DDBBuilder for convenient use by developers for Falcon 4 theaters and object databases.
 
+![Sample of GUI](https://github.com/Blu3wolf/3DDBBuilderGUI/blob/master/images/Ex1.PNG)
+
 ## F4-3DDBBuilder
 
 F4-3DDBBuilder is coded by Mike Rivers and updated by Dunc and Switch of the BMS Dev Team. 
