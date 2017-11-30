@@ -33,7 +33,7 @@
                         <Label Content="Specify destination for extracted DB"/>
                         <DockPanel>
                             <Button x:Name="DestSelectButton" Content="Select..." Click="DestSelectButton_Click" Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
-                            <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=ExtractionPath}" />
+                            <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurExtractionPath}" />
                         </DockPanel>
                         <Button Content="Extract" Click="ExtrButton_Click" Margin="10" Style="{StaticResource WFButton}"/>
                     </StackPanel>

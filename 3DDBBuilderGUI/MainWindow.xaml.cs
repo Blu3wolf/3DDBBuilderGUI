@@ -59,7 +59,7 @@ namespace _3DDBBuilderGUI
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public string ExtractionPath
+        public string CurExtractionPath
         {
             get => extractionPath;
             set
@@ -112,9 +112,9 @@ namespace _3DDBBuilderGUI
             dialog.IsFolderPicker = true;
             dialog.Multiselect = false;
             dialog.Title = "Select folder to extract Database to...";
-            if (Directory.Exists(ExtractionPath))
+            if (Directory.Exists(CurExtractionPath))
             {
-                dialog.InitialDirectory = ExtractionPath;
+                dialog.InitialDirectory = CurExtractionPath;
             }
             else
             {
@@ -125,7 +125,7 @@ namespace _3DDBBuilderGUI
                 var dir = dialog.FileName;
                 if (Directory.Exists(dir))
                 {
-                    ExtractionPath = dir;
+                    CurExtractionPath = dir;
 
                 }
             }
@@ -135,12 +135,23 @@ namespace _3DDBBuilderGUI
         {
             if (DBExists(DBBox.Text))
             {
-                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /extract " + "\"" + ExtractionPath + "\"";
+                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
                 ExCommand(command);
             }
             else
             {
                 MessageBox.Show("The DB could not be found at " + DBBox.Text);
+            }
+        }
+
+        private void ListParents(object sender, RoutedEventArgs e)
+        {
+            if (DBExists(DBBox.Text))
+            {
+                // before this we need to replace DBBox with a control actually on the List Parents tab.
+                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /parents";
+                ExCommand(command);
+                // then figure out what to do with the newly generated UnusedParents.txt file
             }
         }
 
