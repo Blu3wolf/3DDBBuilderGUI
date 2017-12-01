@@ -1,5 +1,5 @@
 # 3DDBBuilderGUI
-3DDBBuilderGUI will be a small, graphic interface wrapper for F4-3DDBBuilder. Using the F4_3DDBBuilder.exe CLI has never been easier!
+3DDBBuilderGUI is a small, graphic interface wrapper for F4-3DDBBuilder. Using the F4_3DDBBuilder.exe CLI has never been easier! While currently WIP, it is intended to be a small and convenient way to edit the database without resorting to command line tools.
 
 Releases here package 3DDBBuilderGUI and F4_3DDBBuilder for convenient use by developers for Falcon 4 theaters and object databases.
 
@@ -9,7 +9,7 @@ Releases here package 3DDBBuilderGUI and F4_3DDBBuilder for convenient use by de
 
 F4-3DDBBuilder is coded by Mike Rivers and updated by Dunc and Switch of the BMS Dev Team. 
 
-You can read more about it here: https://www.bmsforum.org/forum/showthread.php?32203-BMS-Tool-F4-3D-Database-Builder 
+You can read more about it here: [BMS Tool F-4 3D Database Builder](https://www.bmsforum.org/forum/showthread.php?32203-BMS-Tool-F4-3D-Database-Builder)
 
 You can download it here: http://gofile.me/2lc3U/2p8CO3wnX  A copy is also included with each Release of 3DDBuilderGUI.
 
