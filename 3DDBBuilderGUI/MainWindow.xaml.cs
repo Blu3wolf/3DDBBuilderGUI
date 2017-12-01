@@ -65,7 +65,7 @@ namespace _3DDBBuilderGUI
                 if (File.Exists(theaterlst))
                 {
                     string[] theaters = File.ReadAllLines(theaterlst);
-                    Regex objectdir = new Regex(@"objectdir (.*)");
+                    Regex objmatch = new Regex(@"3ddatadir (.*)");
                     foreach (string theater in theaters)
                     {
                         string tdfstring = BMSInstall + @"\Data\" + theater;
@@ -74,10 +74,12 @@ namespace _3DDBBuilderGUI
                             string[] tdf = File.ReadAllLines(tdfstring);
                             foreach (string line in tdf)
                             {
-                                if (line.Contains("objectdir"))
+                                if (line.StartsWith("3ddatadir"))
                                 {
-                                    string result = line.Substring(10);
-                                    MessageBox.Show(result);
+                                    Match match = objmatch.Match(line);
+                                    string lobjdir = match.Result("$1");
+                                    string objdir = BMSInstall + @"\Data\" + lobjdir;
+                                    AddDBObj(objdir);
                                 }
                             }
                         }
@@ -123,6 +125,23 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        private void AddDBObj(string dir)
+        {
+            
+            if (DBExists(dir))
+            {
+                int item = DBBox.Items.Add(dir);
+                DBBox.SelectedIndex = item;
+                int itemLP = LPDBBox.Items.Add(dir);
+                LPDBBox.SelectedIndex = itemLP;
+            }
+            else
+            {
+                string file = "Error: Could not find a database at " + dir;
+                MessageBox.Show(file);
+            }
+        }
+
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog();
@@ -134,18 +153,7 @@ namespace _3DDBBuilderGUI
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
-                if (DBExists(dir))
-                {
-                    int item = DBBox.Items.Add(dir);
-                    DBBox.SelectedIndex = item;
-                    int itemLP = LPDBBox.Items.Add(dir);
-                    LPDBBox.SelectedIndex = itemLP;
-                }
-                else
-                {
-                    string file = "Error: Could not find a database at " + dir;
-                    MessageBox.Show(file);
-                }
+                AddDBObj(dir);
             }
         }
 
@@ -238,16 +246,7 @@ namespace _3DDBBuilderGUI
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
-                if (DBExists(dir))
-                {
-                    int item = LPDBBox.Items.Add(dir);
-                    LPDBBox.SelectedIndex = item;
-                }
-                else
-                {
-                    string file = "Error: Could not find a database at " + dir;
-                    MessageBox.Show(file);
-                }
+                AddDBObj(dir);
             }
         }
     }
