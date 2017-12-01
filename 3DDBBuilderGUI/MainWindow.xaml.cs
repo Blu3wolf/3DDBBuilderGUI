@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -57,6 +58,8 @@ namespace _3DDBBuilderGUI
                 }
             }
 
+            DBList = new ObservableCollection<ObjDB>();
+
             // Now knowing the BMSInstall, find all object folders in that install
             // can do this by reading theater.lst and then reading all .tdf files
             if (BMSInstall != null)
@@ -80,6 +83,7 @@ namespace _3DDBBuilderGUI
                                     string lobjdir = match.Result("$1");
                                     string objdir = BMSInstall + @"\Data\" + lobjdir;
                                     AddDBObj(objdir);
+                                    DBList.Add(new ObjDB(objdir));
                                 }
                             }
                         }
@@ -114,6 +118,10 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        public ObservableCollection<ObjDB> DBList { get; set; }
+
+        private ObjDB DB;
+
         private bool DBExists(string path)
         {
             string filepath = path += @"\KoreaObj.LOD";
@@ -144,17 +152,37 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        public string GetFolder(bool returnType, bool isFolder)
+        {
+            // returnType true: save folder returned in Settings
+            // isFolder: for folderpicker instead of file picker
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog()
+            {
+                IsFolderPicker = isFolder,
+                EnsureReadOnly = true,
+                Multiselect = false,
+                Title = "Select Objects Folder...",
+                InitialDirectory = BMSInstall + @"\Data\Terrdata"
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && File.Exists(dialog.FileName))
+            {
+                if (returnType)
+                    Properties.Settings.Default.ObjFolderName = dialog.FileName;
+                Properties.Settings.Default.Save();
+                return dialog.FileName;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.EnsureReadOnly = true;
-            dialog.Multiselect = false;
-            dialog.Title = "Select Objects Folder...";
-            dialog.InitialDirectory = BMSInstall + @"\Data\Terrdata";
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            string dir = GetFolder(true, true);
+            if (dir != null)
             {
-                var dir = dialog.FileName;
                 AddDBObj(dir);
             }
         }
@@ -239,16 +267,14 @@ namespace _3DDBBuilderGUI
 
         private void LPSourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.EnsureReadOnly = true;
-            dialog.Multiselect = false;
-            dialog.Title = "Select Objects Folder...";
-            dialog.InitialDirectory = BMSInstall += @"\Data\Terrdata";
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            string dir = GetFolder(true, true);
+            if (dir != null)
             {
-                var dir = dialog.FileName;
+                // old method
                 AddDBObj(dir);
+                // new method
+                ObjDB Obj = new ObjDB(dir);
+                DBList.Add(Obj);
             }
         }
     }
