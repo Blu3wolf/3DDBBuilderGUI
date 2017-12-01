@@ -65,7 +65,7 @@ namespace _3DDBBuilderGUI
             set
             {
                 extractionPath = value;
-                PropertyChanged(this, new PropertyChangedEventArgs("ExtractionPath"));
+                PropertyChanged(this, new PropertyChangedEventArgs("CurExtractionPath"));
             }
         }
 
