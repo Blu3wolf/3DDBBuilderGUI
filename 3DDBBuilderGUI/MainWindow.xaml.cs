@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -44,7 +45,47 @@ namespace _3DDBBuilderGUI
                         {
                             BMSInstall = dir.ToString();
                         }
+                        else
+                        {
+                            MessageBox.Show("Your BMS install is probably borked. Search for Dunc's registry cleaner and use that before reinstalling.");
+                        }
                     }
+                    else
+                    {
+                        MessageBox.Show("Could not find a BMS install in the registry. You will have to point to the DB you want to use manually.");
+                    }
+                }
+            }
+
+            // Now knowing the BMSInstall, find all object folders in that install
+            // can do this by reading theater.lst and then reading all .tdf files
+            if (BMSInstall != null)
+            {
+                string theaterlst = BMSInstall + @"\Data\Terrdata\theaterdefinition\theater.lst";
+                if (File.Exists(theaterlst))
+                {
+                    string[] theaters = File.ReadAllLines(theaterlst);
+                    Regex objectdir = new Regex(@"objectdir (.*)");
+                    foreach (string theater in theaters)
+                    {
+                        string tdfstring = BMSInstall + @"\Data\" + theater;
+                        if (File.Exists(tdfstring))
+                        {
+                            string[] tdf = File.ReadAllLines(tdfstring);
+                            foreach (string line in tdf)
+                            {
+                                if (line.Contains("objectdir"))
+                                {
+                                    string result = line.Substring(10);
+                                    MessageBox.Show(result);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Could not find theater.lst in your BMS install. You will have to point to the DB you want to use manually.");
                 }
             }
 
@@ -89,7 +130,7 @@ namespace _3DDBBuilderGUI
             dialog.EnsureReadOnly = true;
             dialog.Multiselect = false;
             dialog.Title = "Select Objects Folder...";
-            dialog.InitialDirectory = BMSInstall += @"\Data\Terrdata";
+            dialog.InitialDirectory = BMSInstall + @"\Data\Terrdata";
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 var dir = dialog.FileName;
@@ -97,6 +138,8 @@ namespace _3DDBBuilderGUI
                 {
                     int item = DBBox.Items.Add(dir);
                     DBBox.SelectedIndex = item;
+                    int itemLP = LPDBBox.Items.Add(dir);
+                    LPDBBox.SelectedIndex = itemLP;
                 }
                 else
                 {
