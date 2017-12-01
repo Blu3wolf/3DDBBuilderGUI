@@ -89,6 +89,8 @@ namespace _3DDBBuilderGUI
                 {
                     MessageBox.Show("Could not find theater.lst in your BMS install. You will have to point to the DB you want to use manually.");
                 }
+                DBBox.SelectedIndex = 0;
+                LPDBBox.SelectedIndex = 0;
             }
 
             extractionPath = "Path to extract database to TEST";
