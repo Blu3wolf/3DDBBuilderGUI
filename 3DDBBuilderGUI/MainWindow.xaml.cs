@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -44,7 +46,54 @@ namespace _3DDBBuilderGUI
                         {
                             BMSInstall = dir.ToString();
                         }
+                        else
+                        {
+                            MessageBox.Show("Found a BMS key in the registry, but no baseDir subkey. Your BMS install is probably borked. Search for Dunc's registry cleaner and use that before reinstalling.", "Registry Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
+                    else
+                    {
+                        MessageBox.Show("Could not find a BMS install in the registry. You will have to point to the DB you want to use manually.", "Could not find a BMS Install", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    }
+                }
+            }
+
+            DBsList = new ObservableCollection<ObjDB>();
+
+            // Now knowing the BMSInstall, find all object folders in that install
+            // can do this by reading theater.lst and then reading all .tdf files
+            if (BMSInstall != null)
+            {
+                string theaterlst = BMSInstall + @"\Data\Terrdata\theaterdefinition\theater.lst";
+                if (File.Exists(theaterlst))
+                {
+                    string[] theaters = File.ReadAllLines(theaterlst);
+                    Regex objmatch = new Regex(@"3ddatadir (.*)");
+                    foreach (string theater in theaters)
+                    {
+                        string tdfstring = BMSInstall + @"\Data\" + theater;
+                        if (File.Exists(tdfstring))
+                        {
+                            string[] tdf = File.ReadAllLines(tdfstring);
+                            foreach (string line in tdf)
+                            {
+                                // can any of this be tidied up?
+                                if (line.StartsWith("3ddatadir"))
+                                {
+                                    Match match = objmatch.Match(line);
+                                    string lobjdir = match.Result("$1");
+                                    string objdir = BMSInstall + @"\Data\" + lobjdir;
+                                    DBsList.Add(new ObjDB() { DirPath=objdir });
+                                }
+                            }
+                        }
+                    }
+                    SelectedDB = DBsList[0];
+                    MessageBox.Show("Found " + DBsList.Count + " object databases in your BMS install.", "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Could not find theater.lst in your BMS install. Either I done goofed, or your install is probably borked.", "BMS Install Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
 
@@ -55,59 +104,112 @@ namespace _3DDBBuilderGUI
 
         private string BMSInstall;
 
-        private string extractionPath;
-
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyname)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
+        }
+
+        private string extractionPath;
 
         public string CurExtractionPath
         {
             get => extractionPath;
             set
             {
-                extractionPath = value;
-                PropertyChanged(this, new PropertyChangedEventArgs("CurExtractionPath"));
+                if (value != extractionPath)
+                {
+                    extractionPath = value;
+                    NotifyPropertyChanged("ExtractionPath");
+                }
             }
         }
 
-        private bool DBExists(string path)
+        public ObservableCollection<ObjDB> DBsList { get; set; }
+
+        private ObjDB selectedDB;
+
+        public ObjDB SelectedDB
         {
-            string filepath = path += @"\KoreaObj.LOD";
-            if (File.Exists(filepath))
+            get => selectedDB;
+            set
             {
-                return true;
+                if (value != selectedDB)
+                {
+                    selectedDB = value;
+                    NotifyPropertyChanged("SelectedDB");
+                }
+            }
+        }
+
+        private ObjDB GetExistingDB(string dir)
+        {
+            // do we already have this DB?
+            foreach (ObjDB objDB in DBsList)
+            {
+                if (dir == objDB.DirPath)
+                {
+                    return objDB;
+                }
+            }
+            return null;
+        }
+
+        private void AddDB(string dir)
+        {
+            SelectedDB = GetExistingDB(dir);
+            if (SelectedDB == null)
+            {
+                ObjDB objDB = new ObjDB { DirPath = dir };
+                DBsList.Add(objDB);
+                SelectedDB = objDB;
+            }
+        }
+
+        public string GetFolder(bool returnType, bool isFolder)
+        {
+            // returnType true: save folder returned in Settings
+            // isFolder: for folderpicker instead of file picker
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog()
+            {
+                IsFolderPicker = isFolder,
+                EnsureReadOnly = true,
+                Multiselect = false,
+                Title = "Select Objects Folder...",
+                InitialDirectory = BMSInstall + @"\Data\Terrdata"
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && Directory.Exists(dialog.FileName))
+            {
+                if (returnType)
+                    Properties.Settings.Default.ObjFolderName = dialog.FileName;
+                Properties.Settings.Default.Save();
+                return dialog.FileName;
             }
             else
             {
-                return false;
+                return null;
             }
         }
 
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.EnsureReadOnly = true;
-            dialog.Multiselect = false;
-            dialog.Title = "Select Objects Folder...";
-            dialog.InitialDirectory = BMSInstall += @"\Data\Terrdata";
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            string dir = GetFolder(true, true);
+            if (dir != null && ObjDB.Exists(dir))
             {
-                var dir = dialog.FileName;
-                if (DBExists(dir))
-                {
-                    int item = DBBox.Items.Add(dir);
-                    DBBox.SelectedIndex = item;
-                }
-                else
-                {
-                    string file = "Error: Could not find a database at " + dir;
-                    MessageBox.Show(file);
-                }
+                AddDB(dir);
             }
+            if (!ObjDB.Exists(dir))
+            {
+                MessageBox.Show("Could not find a DB to select at " + dir);
+            }
+            
         }
 
         private void DestSelectButton_Click(object sender, RoutedEventArgs e)
         {
+            // tidy this all up
             var dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
             dialog.Multiselect = false;
@@ -126,40 +228,39 @@ namespace _3DDBBuilderGUI
                 if (Directory.Exists(dir))
                 {
                     CurExtractionPath = dir;
-
                 }
             }
         }
 
         private void ExtrButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DBExists(DBBox.Text))
+            if (SelectedDB.IsValid())
             {
-                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
+                string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
                 ExCommand(command);
             }
             else
             {
-                MessageBox.Show("The DB could not be found at " + DBBox.Text);
+                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath);
             }
         }
 
         private void ListParents(object sender, RoutedEventArgs e)
         {
-            if (DBExists(LPDBBox.Text))
+            if (SelectedDB.IsValid())
             {
-                string command = @"/objectdir " + "\"" + LPDBBox.Text + "\"" + @" /parents";
+                string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /parents";
                 ExCommand(command);
                 statuslabel.Content = "Success!";
                 // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
             }
             else
             {
-                MessageBox.Show("The DB could not be found at " + LPDBBox.Text);
+                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath);
             }
         }
 
-        private void ExCommand(string command)
+        private void ExCommand(string args)
         {
             // add a function to check to see if the exe is co-located here?
 
@@ -167,7 +268,6 @@ namespace _3DDBBuilderGUI
             {
                 try
                 {
-                    string args = @"/c " + command;
                     System.Diagnostics.ProcessStartInfo startinfo = new System.Diagnostics.ProcessStartInfo("3ddb_builder.exe", args);
                     startinfo.RedirectStandardOutput = true;
                     startinfo.UseShellExecute = false;
@@ -183,29 +283,32 @@ namespace _3DDBBuilderGUI
             }
             
         }
+    }
 
-        private void LPSourceSelectButton_Click(object sender, RoutedEventArgs e)
+    public class ObjDB
+    {
+        public ObjDB()
         {
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.EnsureReadOnly = true;
-            dialog.Multiselect = false;
-            dialog.Title = "Select Objects Folder...";
-            dialog.InitialDirectory = BMSInstall += @"\Data\Terrdata";
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+
+        }
+
+        public static bool Exists(String FolderName)
+        {
+            if (Directory.Exists(FolderName) && File.Exists(FolderName + @"\KoreaOBJ.LOD"))
             {
-                var dir = dialog.FileName;
-                if (DBExists(dir))
-                {
-                    int item = LPDBBox.Items.Add(dir);
-                    LPDBBox.SelectedIndex = item;
-                }
-                else
-                {
-                    string file = "Error: Could not find a database at " + dir;
-                    MessageBox.Show(file);
-                }
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
+
+        public bool IsValid()
+        {
+            return Exists(DirPath);
+        }
+
+        public string DirPath { get; set; }
     }
 }
