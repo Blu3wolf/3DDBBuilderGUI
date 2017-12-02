@@ -18,6 +18,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.Win32;
 using System.IO;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace _3DDBBuilderGUI
 {
@@ -89,15 +90,13 @@ namespace _3DDBBuilderGUI
                         }
                     }
                     SelectedDB = DBsList[0];
-                    MessageBox.Show("Found " + DBsList.Count + " object databases in your BMS install.", "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Found " + DBsList.Count + " object databases in your BMS install. You can select them from the dropdown menu.", "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
                     MessageBox.Show("Could not find theater.lst in your BMS install. Either I done goofed, or your install is probably borked.", "BMS Install Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-
-            extractionPath = "Path to extract database to TEST";
 
             DataContext = this;
         }
@@ -202,7 +201,7 @@ namespace _3DDBBuilderGUI
             }
             if (!ObjDB.Exists(dir))
             {
-                MessageBox.Show("Could not find a DB to select at " + dir);
+                MessageBox.Show("No database was selected as one could not be located in the selected directory: \n\n" + dir, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             
         }
@@ -253,7 +252,7 @@ namespace _3DDBBuilderGUI
                 ExCommand(command);
                 statuslabel.Content = "Success!";
                 // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
-                System.Diagnostics.Process.Start("UnusedParents.txt");
+                Process.Start("UnusedParents.txt");
             }
             else
             {
@@ -265,11 +264,11 @@ namespace _3DDBBuilderGUI
         {
             // add a function to check to see if the exe is co-located here?
 
-            using (var process = new System.Diagnostics.Process())
+            using (var process = new Process())
             {
                 try
                 {
-                    System.Diagnostics.ProcessStartInfo startinfo = new System.Diagnostics.ProcessStartInfo("3ddb_builder.exe", args);
+                    ProcessStartInfo startinfo = new ProcessStartInfo("3ddb_builder.exe", args);
                     startinfo.RedirectStandardOutput = true;
                     startinfo.UseShellExecute = false;
                     startinfo.CreateNoWindow = true;
