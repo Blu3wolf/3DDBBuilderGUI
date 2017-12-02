@@ -143,6 +143,30 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        private ObjDB GetExistingDB(string dir)
+        {
+            // do we already have this DB?
+            foreach (ObjDB objDB in DBsList)
+            {
+                if (dir == objDB.DirPath)
+                {
+                    return objDB;
+                }
+            }
+            return null;
+        }
+
+        private void AddDB(string dir)
+        {
+            SelectedDB = GetExistingDB(dir);
+            if (SelectedDB == null)
+            {
+                ObjDB objDB = new ObjDB { DirPath = dir };
+                DBsList.Add(objDB);
+                SelectedDB = objDB;
+            }
+        }
+
         public string GetFolder(bool returnType, bool isFolder)
         {
             // returnType true: save folder returned in Settings
@@ -175,7 +199,7 @@ namespace _3DDBBuilderGUI
             string dir = GetFolder(true, true);
             if (dir != null && ObjDB.Exists(dir))
             {
-                DBsList.Add(new ObjDB() { DirPath = dir });
+                AddDB(dir);
                 // what happens if there are duplicates?
                 MessageBox.Show("DBsList contains " + DBsList.Count() + " members");
             }
