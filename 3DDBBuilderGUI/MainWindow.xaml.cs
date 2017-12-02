@@ -48,12 +48,12 @@ namespace _3DDBBuilderGUI
                         }
                         else
                         {
-                            MessageBox.Show("Your BMS install is probably borked. Search for Dunc's registry cleaner and use that before reinstalling.");
+                            MessageBox.Show("Found a BMS key in the registry, but no baseDir subkey. Your BMS install is probably borked. Search for Dunc's registry cleaner and use that before reinstalling.", "Registry Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Could not find a BMS install in the registry. You will have to point to the DB you want to use manually.");
+                        MessageBox.Show("Could not find a BMS install in the registry. You will have to point to the DB you want to use manually.", "Could not find a BMS Install", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     }
                 }
             }
@@ -89,11 +89,11 @@ namespace _3DDBBuilderGUI
                         }
                     }
                     SelectedDB = DBsList[0];
-                    MessageBox.Show("DBsList contains " + DBsList.Count + " ObjDBs.");
+                    MessageBox.Show("Found " + DBsList.Count + " object databases in your BMS install.");
                 }
                 else
                 {
-                    MessageBox.Show("Could not find theater.lst in your BMS install. You will have to point to the DB you want to use manually.");
+                    MessageBox.Show("Could not find theater.lst in your BMS install. Either I done goofed, or your install is probably borked.", "BMS Install Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
 
@@ -185,7 +185,6 @@ namespace _3DDBBuilderGUI
                 if (returnType)
                     Properties.Settings.Default.ObjFolderName = dialog.FileName;
                 Properties.Settings.Default.Save();
-                MessageBox.Show("CFDR.OK and FileName.Exists");
                 return dialog.FileName;
             }
             else
