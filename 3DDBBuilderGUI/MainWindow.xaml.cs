@@ -253,6 +253,7 @@ namespace _3DDBBuilderGUI
                 ExCommand(command);
                 statuslabel.Content = "Success!";
                 // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
+                System.Diagnostics.Process.Start("UnusedParents.txt");
             }
             else
             {

@@ -49,7 +49,6 @@
                             <ComboBox ItemsSource="{Binding DBsList}" DisplayMemberPath="DirPath" SelectedItem="{Binding SelectedDB, Mode=TwoWay}" Margin="0,0,10,0"/>
                         </DockPanel>
                         <Button Content="List Parents" Click="ListParents" Margin="10" Style="{StaticResource WFButton}"/>
-                        <TextBox Text="{Binding SelectedDB, Mode=TwoWay}" />
                     </StackPanel>
                 </Grid>
             </TabItem>
