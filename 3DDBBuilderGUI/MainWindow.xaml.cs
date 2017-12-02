@@ -118,8 +118,11 @@ namespace _3DDBBuilderGUI
             get => extractionPath;
             set
             {
-                extractionPath = value;
-                PropertyChanged(this, new PropertyChangedEventArgs("ExtractionPath"));
+                if (value != extractionPath)
+                {
+                    extractionPath = value;
+                    NotifyPropertyChanged("ExtractionPath");
+                }
             }
         }
 
@@ -129,10 +132,7 @@ namespace _3DDBBuilderGUI
 
         public ObjDB SelectedDB
         {
-            get
-            {
-                return selectedDB;
-            }
+            get => selectedDB;
             set
             {
                 if (value != selectedDB)
