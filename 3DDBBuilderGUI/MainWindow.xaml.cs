@@ -200,16 +200,10 @@ namespace _3DDBBuilderGUI
             if (dir != null && ObjDB.Exists(dir))
             {
                 AddDB(dir);
-                // what happens if there are duplicates?
-                MessageBox.Show("DBsList contains " + DBsList.Count() + " members");
             }
             if (!ObjDB.Exists(dir))
             {
                 MessageBox.Show("Could not find a DB to select at " + dir);
-            }
-            if (dir == null)
-            {
-                MessageBox.Show("Dir equals null? what?");
             }
             
         }
