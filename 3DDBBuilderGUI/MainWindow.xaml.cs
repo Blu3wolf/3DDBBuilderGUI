@@ -284,6 +284,63 @@ namespace _3DDBBuilderGUI
             }
             
         }
+
+        private void ExCommand(string args, string directory)
+        {
+            // add function to check to see if exe is co-located here?
+
+            using (var process = new Process())
+            {
+                try
+                {
+                    ProcessStartInfo startinfo = new ProcessStartInfo("3ddb_builder.exe", args);
+                    startinfo.RedirectStandardOutput = true;
+                    startinfo.UseShellExecute = false;
+                    startinfo.CreateNoWindow = true;
+                    startinfo.WorkingDirectory = directory;
+                    process.StartInfo = startinfo;
+                    process.Start();
+                    string result = process.StandardOutput.ReadToEnd();
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+        }
+
+        private void ResetDirButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CurExtractionPath = Directory.GetCurrentDirectory();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private void OpenDirButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Directory.Exists(CurExtractionPath))
+            {
+                Process.Start(CurExtractionPath);
+            }
+            else
+            {
+                if (CurExtractionPath == null)
+                {
+                    MessageBox.Show("Please select a directory to open first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    MessageBox.Show("Could not find the directory specified:" + CurExtractionPath, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 
     public class ObjDB

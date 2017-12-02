@@ -26,24 +26,29 @@
             <TabItem Header="Extract">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel>
-                        <Label Content="Specify location of Object folder"/>
+                        <Label Content="Specify location of Object folder to extract:"/>
                         <DockPanel>
                             <Button Content="Select..." Click="SourceSelectButton_Click" Style="{StaticResource WFButton}"/>
                             <ComboBox ItemsSource="{Binding DBsList}" DisplayMemberPath="DirPath" SelectedItem="{Binding SelectedDB, Mode=TwoWay}" Margin="0,0,10,0"/>
                         </DockPanel>
-                        <Label Content="Specify destination for extracted DB"/>
+                        <Label Content="Specify destination for the extracted 3D database:"/>
                         <DockPanel>
                             <Button Content="Select..." Click="DestSelectButton_Click" Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
                             <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurExtractionPath}" />
                         </DockPanel>
-                        <Button Content="Extract" Click="ExtrButton_Click" Margin="10" Style="{StaticResource WFButton}"/>
+                        <DockPanel>
+                            <Button Content="Reset Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="ResetDirButton_Click"/>
+                            <Button Content="Open Directory"  DockPanel.Dock="Right" Margin="10" Style="{StaticResource WFButton}" Click="OpenDirButton_Click"/>
+                            <Button Content="Extract" Click="ExtrButton_Click" Margin="10"  Style="{StaticResource WFButton}"/>
+                        </DockPanel>
+                        
                     </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="List Parents">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel>
-                        <Label Content="Specify location of Object folder"/>
+                        <Label Content="Specify location of Object folder to extract:"/>
                         <DockPanel>
                             <Button Content="Select..." Click="SourceSelectButton_Click" Style="{StaticResource WFButton}"/>
                             <ComboBox ItemsSource="{Binding DBsList}" DisplayMemberPath="DirPath" SelectedItem="{Binding SelectedDB, Mode=TwoWay}" Margin="0,0,10,0"/>
@@ -53,7 +58,9 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Build" >
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    
+                </Grid>
             </TabItem>
             <TabItem Header="Update" >
                 <Grid Background="#FFE5E5E5"/>
