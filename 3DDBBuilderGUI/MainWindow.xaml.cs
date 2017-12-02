@@ -120,7 +120,7 @@ namespace _3DDBBuilderGUI
                 if (value != extractionPath)
                 {
                     extractionPath = value;
-                    NotifyPropertyChanged("ExtractionPath");
+                    NotifyPropertyChanged("CurExtractionPath");
                 }
             }
         }
@@ -199,10 +199,11 @@ namespace _3DDBBuilderGUI
             {
                 AddDB(dir);
             }
-            if (!ObjDB.Exists(dir))
+            if (dir != null && !ObjDB.Exists(dir))
             {
                 MessageBox.Show("No database was selected as one could not be located in the selected directory: \n\n" + dir, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+
             
         }
 
