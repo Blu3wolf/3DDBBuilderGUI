@@ -28,12 +28,12 @@
                     <StackPanel>
                         <Label Content="Specify location of Object folder"/>
                         <DockPanel>
-                            <Button x:Name="SourceSelectButton" Content="Select..." Click="SourceSelectButton_Click" Style="{StaticResource WFButton}"/>
-                            <ComboBox x:Name="DBBox" Margin="0,0,10,0"/>
+                            <Button Content="Select..." Click="SourceSelectButton_Click" Style="{StaticResource WFButton}"/>
+                            <ComboBox ItemsSource="{Binding DBsList}" DisplayMemberPath="DirPath" SelectedItem="{Binding SelectedDB, Mode=TwoWay}" Margin="0,0,10,0"/>
                         </DockPanel>
                         <Label Content="Specify destination for extracted DB"/>
                         <DockPanel>
-                            <Button x:Name="DestSelectButton" Content="Select..." Click="DestSelectButton_Click" Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
+                            <Button Content="Select..." Click="DestSelectButton_Click" Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
                             <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurExtractionPath}" />
                         </DockPanel>
                         <Button Content="Extract" Click="ExtrButton_Click" Margin="10" Style="{StaticResource WFButton}"/>
@@ -45,10 +45,11 @@
                     <StackPanel>
                         <Label Content="Specify location of Object folder"/>
                         <DockPanel>
-                            <Button x:Name="LPSourceSelectButton" Content="Select..." Click="LPSourceSelectButton_Click" Style="{StaticResource WFButton}"/>
-                            <ComboBox x:Name="LPDBBox" ItemsSource="{Binding DBlist}" DisplayMemberPath="Dir" SelectedValuePath="Dir" Margin="0,0,10,0"/>
+                            <Button Content="Select..." Click="SourceSelectButton_Click" Style="{StaticResource WFButton}"/>
+                            <ComboBox ItemsSource="{Binding DBsList}" DisplayMemberPath="DirPath" SelectedItem="{Binding SelectedDB, Mode=TwoWay}" Margin="0,0,10,0"/>
                         </DockPanel>
                         <Button Content="List Parents" Click="ListParents" Margin="10" Style="{StaticResource WFButton}"/>
+                        <TextBox Text="{Binding SelectedDB, Mode=TwoWay}" />
                     </StackPanel>
                 </Grid>
             </TabItem>

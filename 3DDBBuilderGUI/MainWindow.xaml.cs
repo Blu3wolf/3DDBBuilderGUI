@@ -58,7 +58,7 @@ namespace _3DDBBuilderGUI
                 }
             }
 
-            DBList = new ObservableCollection<ObjDB>();
+            DBsList = new ObservableCollection<ObjDB>();
 
             // Now knowing the BMSInstall, find all object folders in that install
             // can do this by reading theater.lst and then reading all .tdf files
@@ -77,24 +77,24 @@ namespace _3DDBBuilderGUI
                             string[] tdf = File.ReadAllLines(tdfstring);
                             foreach (string line in tdf)
                             {
+                                // can any of this be tidied up?
                                 if (line.StartsWith("3ddatadir"))
                                 {
                                     Match match = objmatch.Match(line);
                                     string lobjdir = match.Result("$1");
                                     string objdir = BMSInstall + @"\Data\" + lobjdir;
-                                    AddDBObj(objdir);
-                                    DBList.Add(new ObjDB(objdir));
+                                    DBsList.Add(new ObjDB() { DirPath=objdir });
                                 }
                             }
                         }
                     }
+                    SelectedDB = DBsList[0];
+                    MessageBox.Show("DBsList contains " + DBsList.Count + " ObjDBs.");
                 }
                 else
                 {
                     MessageBox.Show("Could not find theater.lst in your BMS install. You will have to point to the DB you want to use manually.");
                 }
-                DBBox.SelectedIndex = 0;
-                LPDBBox.SelectedIndex = 0;
             }
 
             extractionPath = "Path to extract database to TEST";
@@ -104,9 +104,14 @@ namespace _3DDBBuilderGUI
 
         private string BMSInstall;
 
-        private string extractionPath;
-
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyname)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
+        }
+
+        private string extractionPath;
 
         public string CurExtractionPath
         {
@@ -118,37 +123,23 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        public ObservableCollection<ObjDB> DBList { get; set; }
+        public ObservableCollection<ObjDB> DBsList { get; set; }
 
-        private ObjDB DB;
+        private ObjDB selectedDB;
 
-        private bool DBExists(string path)
+        public ObjDB SelectedDB
         {
-            string filepath = path += @"\KoreaObj.LOD";
-            if (File.Exists(filepath))
+            get
             {
-                return true;
+                return selectedDB;
             }
-            else
+            set
             {
-                return false;
-            }
-        }
-
-        private void AddDBObj(string dir)
-        {
-            
-            if (DBExists(dir))
-            {
-                int item = DBBox.Items.Add(dir);
-                DBBox.SelectedIndex = item;
-                int itemLP = LPDBBox.Items.Add(dir);
-                LPDBBox.SelectedIndex = itemLP;
-            }
-            else
-            {
-                string file = "Error: Could not find a database at " + dir;
-                MessageBox.Show(file);
+                if (value != selectedDB)
+                {
+                    selectedDB = value;
+                    NotifyPropertyChanged("SelectedDB");
+                }
             }
         }
 
@@ -165,11 +156,12 @@ namespace _3DDBBuilderGUI
                 InitialDirectory = BMSInstall + @"\Data\Terrdata"
             };
 
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && File.Exists(dialog.FileName))
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && Directory.Exists(dialog.FileName))
             {
                 if (returnType)
                     Properties.Settings.Default.ObjFolderName = dialog.FileName;
                 Properties.Settings.Default.Save();
+                MessageBox.Show("CFDR.OK and FileName.Exists");
                 return dialog.FileName;
             }
             else
@@ -181,14 +173,26 @@ namespace _3DDBBuilderGUI
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
             string dir = GetFolder(true, true);
-            if (dir != null)
+            if (dir != null && ObjDB.Exists(dir))
             {
-                AddDBObj(dir);
+                DBsList.Add(new ObjDB() { DirPath = dir });
+                // what happens if there are duplicates?
+                MessageBox.Show("DBsList contains " + DBsList.Count() + " members");
             }
+            if (!ObjDB.Exists(dir))
+            {
+                MessageBox.Show("Could not find a DB to select at " + dir);
+            }
+            if (dir == null)
+            {
+                MessageBox.Show("Dir equals null? what?");
+            }
+            
         }
 
         private void DestSelectButton_Click(object sender, RoutedEventArgs e)
         {
+            // tidy this all up
             var dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
             dialog.Multiselect = false;
@@ -207,40 +211,39 @@ namespace _3DDBBuilderGUI
                 if (Directory.Exists(dir))
                 {
                     CurExtractionPath = dir;
-
                 }
             }
         }
 
         private void ExtrButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DBExists(DBBox.Text))
+            if (SelectedDB.IsValid())
             {
-                string command = @"/objectdir " + "\"" + DBBox.Text + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
+                string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
                 ExCommand(command);
             }
             else
             {
-                MessageBox.Show("The DB could not be found at " + DBBox.Text);
+                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath);
             }
         }
 
         private void ListParents(object sender, RoutedEventArgs e)
         {
-            if (DBExists(LPDBBox.Text))
+            if (SelectedDB.IsValid())
             {
-                string command = @"/objectdir " + "\"" + LPDBBox.Text + "\"" + @" /parents";
+                string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /parents";
                 ExCommand(command);
                 statuslabel.Content = "Success!";
                 // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
             }
             else
             {
-                MessageBox.Show("The DB could not be found at " + LPDBBox.Text);
+                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath);
             }
         }
 
-        private void ExCommand(string command)
+        private void ExCommand(string args)
         {
             // add a function to check to see if the exe is co-located here?
 
@@ -248,7 +251,6 @@ namespace _3DDBBuilderGUI
             {
                 try
                 {
-                    string args = @"/c " + command;
                     System.Diagnostics.ProcessStartInfo startinfo = new System.Diagnostics.ProcessStartInfo("3ddb_builder.exe", args);
                     startinfo.RedirectStandardOutput = true;
                     startinfo.UseShellExecute = false;
@@ -264,18 +266,32 @@ namespace _3DDBBuilderGUI
             }
             
         }
+    }
 
-        private void LPSourceSelectButton_Click(object sender, RoutedEventArgs e)
+    public class ObjDB
+    {
+        public ObjDB()
         {
-            string dir = GetFolder(true, true);
-            if (dir != null)
+
+        }
+
+        public static bool Exists(String FolderName)
+        {
+            if (Directory.Exists(FolderName) && File.Exists(FolderName + @"\KoreaOBJ.LOD"))
             {
-                // old method
-                AddDBObj(dir);
-                // new method
-                ObjDB Obj = new ObjDB(dir);
-                DBList.Add(Obj);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
+
+        public bool IsValid()
+        {
+            return Exists(DirPath);
+        }
+
+        public string DirPath { get; set; }
     }
 }
