@@ -89,7 +89,7 @@ namespace _3DDBBuilderGUI
                         }
                     }
                     SelectedDB = DBsList[0];
-                    MessageBox.Show("Found " + DBsList.Count + " object databases in your BMS install.");
+                    MessageBox.Show("Found " + DBsList.Count + " object databases in your BMS install.", "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
