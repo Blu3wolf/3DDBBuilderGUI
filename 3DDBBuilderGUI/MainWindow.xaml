@@ -9,8 +9,8 @@
         Title="F4-3DDBBuilder" Height="350" Width="525">
     <Window.Resources>
         <Style x:Key="WFButton" TargetType="Button">
-            <Setter Property="Height" Value="25" />
-            <Setter Property="Width" Value="100" />
+            <Setter Property="MinHeight" Value="25" />
+            <Setter Property="MinWidth" Value="100" />
             <Setter Property="Margin" Value="10,0,10,0" />
         </Style>
         <Style TargetType="Label">
@@ -34,12 +34,12 @@
                         <Label Content="Specify destination for the extracted 3D database:"/>
                         <DockPanel>
                             <Button Content="Select..." Click="DestSelectButton_Click" Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
-                            <TextBox x:Name="ExtractionTextBox" TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurExtractionPath}" />
+                            <TextBox TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurExtractionPath}" />
                         </DockPanel>
-                        <DockPanel>
+                        <DockPanel LastChildFill="False">
+                            <Button Content="Extract" DockPanel.Dock="Right" Click="ExtrButton_Click" Margin="10"  Style="{StaticResource WFButton}"/>
+                            <Button Content="Open Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="OpenDirButton_Click"/>
                             <Button Content="Reset Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="ResetDirButton_Click"/>
-                            <Button Content="Open Directory"  DockPanel.Dock="Right" Margin="10" Style="{StaticResource WFButton}" Click="OpenDirButton_Click"/>
-                            <Button Content="Extract" Click="ExtrButton_Click" Margin="10"  Style="{StaticResource WFButton}"/>
                         </DockPanel>
                         
                     </StackPanel>
@@ -59,7 +59,28 @@
             </TabItem>
             <TabItem Header="Build" >
                 <Grid Background="#FFE5E5E5">
-                    
+                    <StackPanel>
+                        <DockPanel>
+                            <StackPanel>
+                                <Label Content="Specify location of the extracted 3D database:"/>
+                                <TextBox TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=BuildSource}" />
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right">
+                                <Button Content="Open..." Style="{StaticResource WFButton}" Click="OpenBuildSourceDirectoryButton_Click" />
+                                <Button Content="Select..."  Style="{StaticResource WFButton}" Click="BuildSourceSelectButton_Click"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <Label Content="Specify destination to build the 3D database:"/>
+                        <DockPanel>
+                            <Button Content="Select..." Style="{StaticResource WFButton}" DockPanel.Dock="Right" Click="BuildDestSelectButton_Click"/>
+                            <Button Content="Open..." Style="{StaticResource WFButton}" Click="OpenBuildOutputDirectoryButton_Click"  />
+                            <TextBox TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=BuildOutput}" />
+                        </DockPanel>
+                        <DockPanel LastChildFill="False" Margin="0,10,0,0">
+                            <Button Content="Build for 4.34 onwards" Style="{StaticResource WFButton}" Click="BuildNewButton_Click" />
+                            <Button Content="Build for 4.33 backwards" Style="{StaticResource WFButton}" Click="BuildOldButton_Click" />
+                        </DockPanel>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="Update" >

@@ -54,7 +54,7 @@ namespace _3DDBBuilderGUI
                     }
                     else
                     {
-                        MessageBox.Show("Could not find a BMS install in the registry. You will have to point to the DB you want to use manually.", "Could not find a BMS Install", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                        MessageBox.Show("Could not find a BMS install in the registry. You will have to point to the DB you want to use manually.", "Could not find a BMS Install", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }
@@ -125,6 +125,36 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        private string buildSource;
+
+        public string BuildSource
+        {
+            get => buildSource;
+            set
+            {
+                if (value != buildSource)
+                {
+                    buildSource = value;
+                    NotifyPropertyChanged("BuildSource");
+                }
+            }
+        }
+
+        private string buildOutput;
+
+        public string BuildOutput
+        {
+            get => buildOutput;
+            set
+            {
+                if (value != buildOutput)
+                {
+                    buildOutput = value;
+                    NotifyPropertyChanged("BuildOutput");
+                }
+            }
+        }
+
         public ObservableCollection<ObjDB> DBsList { get; set; }
 
         private ObjDB selectedDB;
@@ -140,6 +170,11 @@ namespace _3DDBBuilderGUI
                     NotifyPropertyChanged("SelectedDB");
                 }
             }
+        }
+
+        public string GUIWorDir
+        {
+            get => Directory.GetCurrentDirectory();
         }
 
         private ObjDB GetExistingDB(string dir)
@@ -166,7 +201,7 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        public string GetFolder(bool returnType, bool isFolder)
+        public string GetFolder(bool returnType, bool isFolder, string windowTitle, string initDir)
         {
             // returnType true: save folder returned in Settings
             // isFolder: for folderpicker instead of file picker
@@ -175,9 +210,14 @@ namespace _3DDBBuilderGUI
                 IsFolderPicker = isFolder,
                 EnsureReadOnly = true,
                 Multiselect = false,
-                Title = "Select Objects Folder...",
-                InitialDirectory = BMSInstall + @"\Data\Terrdata"
+                Title = windowTitle,
+                InitialDirectory = initDir
             };
+
+            if (!Directory.Exists(initDir))
+            {
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            }
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok && Directory.Exists(dialog.FileName))
             {
@@ -192,9 +232,28 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        private void OpenFolder(string folder)
+        {
+            if (Directory.Exists(folder))
+            {
+                Process.Start(folder);
+            }
+            else
+            {
+                if (folder == null)
+                {
+                    MessageBox.Show("Please select a directory to open first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    MessageBox.Show("Could not find the directory specified:" + folder, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
         {
-            string dir = GetFolder(true, true);
+            string dir = GetFolder(true, true, "Select Object Folder...", BMSInstall + @"\Data\Terrdata");
             if (dir != null && ObjDB.Exists(dir))
             {
                 AddDB(dir);
@@ -209,39 +268,39 @@ namespace _3DDBBuilderGUI
 
         private void DestSelectButton_Click(object sender, RoutedEventArgs e)
         {
-            // tidy this all up
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.Multiselect = false;
-            dialog.Title = "Select folder to extract Database to...";
-            if (Directory.Exists(CurExtractionPath))
+            string dir = GetFolder(false, true, "Select folder to extract Database to...", CurExtractionPath);
+            
+            if (dir != null)
             {
-                dialog.InitialDirectory = CurExtractionPath;
-            }
-            else
-            {
-                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            }
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                var dir = dialog.FileName;
-                if (Directory.Exists(dir))
-                {
-                    CurExtractionPath = dir;
-                }
+                CurExtractionPath = dir;
             }
         }
 
         private void ExtrButton_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedDB.IsValid())
+            if (SelectedDB.IsValid() && Directory.Exists(CurExtractionPath))
             {
                 string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
                 ExCommand(command);
+                BuildSource = CurExtractionPath;
             }
             else
             {
-                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath);
+                if (Directory.Exists(CurExtractionPath))
+                {
+                    MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    if (CurExtractionPath == null)
+                    {
+                        MessageBox.Show("Please select an extraction path first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show("The destination could not be located at " + SelectedDB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
             }
         }
 
@@ -257,7 +316,7 @@ namespace _3DDBBuilderGUI
             }
             else
             {
-                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath);
+                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -282,32 +341,6 @@ namespace _3DDBBuilderGUI
                     throw;
                 }
             }
-            
-        }
-
-        private void ExCommand(string args, string directory)
-        {
-            // add function to check to see if exe is co-located here?
-
-            using (var process = new Process())
-            {
-                try
-                {
-                    ProcessStartInfo startinfo = new ProcessStartInfo("3ddb_builder.exe", args);
-                    startinfo.RedirectStandardOutput = true;
-                    startinfo.UseShellExecute = false;
-                    startinfo.CreateNoWindow = true;
-                    startinfo.WorkingDirectory = directory;
-                    process.StartInfo = startinfo;
-                    process.Start();
-                    string result = process.StandardOutput.ReadToEnd();
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-            }
         }
 
         private void ResetDirButton_Click(object sender, RoutedEventArgs e)
@@ -325,21 +358,48 @@ namespace _3DDBBuilderGUI
 
         private void OpenDirButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Directory.Exists(CurExtractionPath))
+            OpenFolder(CurExtractionPath);
+        }
+
+        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("This Function has not yet been implemented. Sorry!");
+            MessageBox.Show("The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Beware!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
+        {
+            string command = @"/objectdir " + "\"" + BuildOutput + "\"" + @" /build_old " + "\"" + BuildSource + "\"";
+            ExCommand(command);
+        }
+
+        private void BuildSourceSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(false, true, "Select folder to Build Database from...", BuildSource);
+
+            if (dir != null)
             {
-                Process.Start(CurExtractionPath);
+                BuildSource = dir;
             }
-            else
+        }
+
+        private void BuildDestSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(false, true, "Select folder to save Database to...", BuildOutput);
+            if (dir != null)
             {
-                if (CurExtractionPath == null)
-                {
-                    MessageBox.Show("Please select a directory to open first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-                else
-                {
-                    MessageBox.Show("Could not find the directory specified:" + CurExtractionPath, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                BuildOutput = dir;
             }
+        }
+
+        private void OpenBuildSourceDirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFolder(BuildSource);
+        }
+
+        private void OpenBuildOutputDirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFolder(BuildOutput);
         }
     }
 
