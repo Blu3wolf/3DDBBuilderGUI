@@ -125,6 +125,21 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        private string updatePath;
+
+        public string CurUpdatePath
+        {
+            get => updatePath;
+            set
+            {
+                if (value != updatePath)
+                {
+                    updatePath = value;
+                    NotifyPropertyChanged("CurUpdatePath");
+                }
+            }
+        }
+
         private string buildSource;
 
         public string BuildSource
@@ -278,55 +293,37 @@ namespace _3DDBBuilderGUI
 
         private void ExtrButton_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedDB.IsValid() && Directory.Exists(CurExtractionPath))
-            {
-                BuildSource = CurExtractionPath;
-                ExCommand(DestParams.Extract, SelectedDB.DirPath, CurExtractionPath);
-            }
-            else
-            {
-                if (Directory.Exists(CurExtractionPath))
-                {
-                    MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-                else
-                {
-                    if (CurExtractionPath == null)
-                    {
-                        MessageBox.Show("Please select an extraction path first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                    else
-                    {
-                        MessageBox.Show("The destination could not be located at " + SelectedDB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                }
-            }
+            ExCommand(true, SelectedDB, CurExtractionPath);
+            BuildSource = CurExtractionPath;
         }
 
         private void ListParents(object sender, RoutedEventArgs e)
         {
-            if (SelectedDB.IsValid())
+            ExCommand(false, SelectedDB);
+        }
+
+        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
+        {
+            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
+            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
             {
-                string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /parents";
-                ExCommand(command);
-                statuslabel.Content = "Success!";
-                // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
-                Process.Start("UnusedParents.txt");
-            }
-            else
-            {
-                MessageBox.Show("The DB could not be found at " + SelectedDB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                BuildCommand(true, BuildSource, BuildOutput);
             }
         }
 
-        enum DestParams
+        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
         {
-            Extract, Build, Build_Old, Update
+            BuildCommand(false, BuildSource, BuildOutput);
         }
 
-        enum SourceParams
+        private void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
-            List, Test
+            ExCommand(false, SelectedDB, CurUpdatePath);
+        }
+
+        private void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(true, SelectedDB);
         }
 
         private void ExCommand(string args)
@@ -350,49 +347,87 @@ namespace _3DDBBuilderGUI
                     throw;
                 }
             }
+
+            statuslabel.Content = "Success!";
         }
 
-        private void ExCommand(SourceParams parameter, string dbdir)
+        private void ExCommand(bool IsTest, ObjDB DB)
         {
-            string args;
-            switch (parameter)
+            if (!DB.IsValid())
             {
-                case SourceParams.List:
-                    args = @"/objectdir " + "\"" + dbdir + "\"" + @" /parents";
-                    break;
-                case SourceParams.Test:
-                    args = @"/objectdir " + "\"" + dbdir + "\"" + @" /test";
-                    break;
-                default:
-                    return;
+                MessageBox.Show("The DB could not be found at " + DB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            ExCommand(args);
+            string args;
+            if (IsTest)
+            {
+                args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /test";
+                ExCommand(args);
+
+                // then figure out what to do with the test results which chill in the output file
+                Process.Start("HeaderChecker.txt");
+            }
+            else
+            {
+                args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /parents";
+                ExCommand(args);
+
+                // then figure out what to do with the newly generated UnusedParents.txt file which currently just chills in the debug dir
+                Process.Start("UnusedParents.txt");
+            }
         }
 
-        private void ExCommand(DestParams parameter, string source, string dest)
+        private void BuildCommand(bool IsNew, string source, string dest)
         {
-            string args;
-            switch (parameter)
+            // check for existence of 256 color BMP file!
+
+            string command;
+            if (IsNew)
             {
-                case DestParams.Extract:
-                    args = @"/objectdir " + "\"" + source + "\"" + @" /extract " + "\"" + dest + "\"";
-                    break;
-                case DestParams.Build:
-                    args = @"/objectdir " + "\"" + dest + "\"" + @" /build " + "\"" + source + "\"";
-                    break;
-                case DestParams.Build_Old:
-                    args = @"/objectdir " + "\"" + dest + "\"" + @" /build_old " + "\"" + source + "\"";
-                    break;
-                case DestParams.Update:
-                    args = @"/objectdir " + "\"" + dest + "\"" + @" /update " + "\"" + source + "\"";
-                    break;
-                default:
-                    return;
+                command = "/build";
             }
-            ExCommand(args);
+            else
+            {
+                command = "/build_old";
+            }
+            if (Directory.Exists(source) && Directory.Exists(dest))
+            {
+                string args = @"/objectdir " + "\"" + dest + "\" " + command + " \"" + source + "\"";
+                ExCommand(args);
+            }
         }
 
-        private void ResetDirButton_Click(object sender, RoutedEventArgs e)
+        private void ExCommand(bool IsExtract, ObjDB DB, string ExtractedFolders)
+        {
+            if (!DB.IsValid())
+            {
+                MessageBox.Show("The selected database could not be found at " + DB.DirPath, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (!(Directory.Exists(ExtractedFolders) && ExtractedFolders != null))
+            {
+                MessageBox.Show("Could not find the specified path: " + ExtractedFolders, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (ExtractedFolders == null)
+            {
+                MessageBox.Show("Please select an extraction path first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (IsExtract)
+            {
+                string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /extract " + "\"" + ExtractedFolders + "\"";
+                ExCommand(args);
+            }
+            else
+            {
+                string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /update " + "\"" + ExtractedFolders + "\"";
+                ExCommand(args);
+            }
+        }
+
+        private void ResetExtractionDirButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -405,23 +440,9 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        private void OpenDirButton_Click(object sender, RoutedEventArgs e)
+        private void OpenExtractionDirButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFolder(CurExtractionPath);
-        }
-
-        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
-        {
-            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
-            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
-            {
-                ExCommand(DestParams.Build, BuildSource, BuildOutput);
-            }
-        }
-
-        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(DestParams.Build_Old, BuildSource, BuildOutput);
         }
 
         private void BuildSourceSelectButton_Click(object sender, RoutedEventArgs e)
@@ -451,6 +472,33 @@ namespace _3DDBBuilderGUI
         private void OpenBuildOutputDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFolder(BuildOutput);
+        }
+
+        private void SelCurUpdatePathButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(false, true, "Select Updates folder", CurUpdatePath);
+            if (dir != null)
+            {
+                CurUpdatePath = dir;
+            }
+        }
+
+        private void OpenCurUpdatePathButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFolder(CurUpdatePath);
+        }
+
+        private void ResetCurUpdatePathButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CurUpdatePath = Directory.GetCurrentDirectory();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 

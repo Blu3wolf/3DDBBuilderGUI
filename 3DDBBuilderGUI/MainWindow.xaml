@@ -38,8 +38,8 @@
                         </DockPanel>
                         <DockPanel LastChildFill="False">
                             <Button Content="Extract" DockPanel.Dock="Right" Click="ExtrButton_Click" Margin="10"  Style="{StaticResource WFButton}"/>
-                            <Button Content="Open Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="OpenDirButton_Click"/>
-                            <Button Content="Reset Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="ResetDirButton_Click"/>
+                            <Button Content="Open Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="OpenExtractionDirButton_Click"/>
+                            <Button Content="Reset Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="ResetExtractionDirButton_Click"/>
                         </DockPanel>
                         
                     </StackPanel>
@@ -93,13 +93,13 @@
                         </DockPanel>
                         <Label Content="Select folder to Update database from:"/>
                         <DockPanel>
-                            <Button Content="Select..." Style="{StaticResource WFButton}" DockPanel.Dock="Right"/>
-                            <TextBox TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurExtractionPath}" />
+                            <Button Content="Select..." Style="{StaticResource WFButton}" DockPanel.Dock="Right" Click="SelCurUpdatePathButton_Click"/>
+                            <TextBox TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=CurUpdatePath}" />
                         </DockPanel>
                         <DockPanel LastChildFill="False">
-                            <Button Content="Update" DockPanel.Dock="Right" Margin="10"  Style="{StaticResource WFButton}"/>
-                            <Button Content="Open Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" />
-                            <Button Content="Reset Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" />
+                            <Button Content="Update" DockPanel.Dock="Right" Margin="10"  Style="{StaticResource WFButton}" Click="UpdateButton_Click"/>
+                            <Button Content="Open Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="OpenCurUpdatePathButton_Click" />
+                            <Button Content="Reset Directory"  DockPanel.Dock="Left" Margin="10" Style="{StaticResource WFButton}" Click="ResetCurUpdatePathButton_Click" />
                         </DockPanel>
                     </StackPanel>
                 </Grid>
@@ -112,6 +112,7 @@
                             <Button Content="Select..." Click="SourceSelectButton_Click" Style="{StaticResource WFButton}"/>
                             <ComboBox ItemsSource="{Binding DBsList}" DisplayMemberPath="DirPath" SelectedItem="{Binding SelectedDB, Mode=TwoWay}" Margin="0,0,10,0"/>
                         </DockPanel>
+                        <Button Content="Test DB" Margin="10" Style="{StaticResource WFButton}" Click="TestButton_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
