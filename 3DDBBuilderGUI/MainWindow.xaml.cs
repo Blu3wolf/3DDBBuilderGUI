@@ -280,9 +280,8 @@ namespace _3DDBBuilderGUI
         {
             if (SelectedDB.IsValid() && Directory.Exists(CurExtractionPath))
             {
-                string command = @"/objectdir " + "\"" + SelectedDB.DirPath + "\"" + @" /extract " + "\"" + CurExtractionPath + "\"";
-                ExCommand(command);
                 BuildSource = CurExtractionPath;
+                ExCommand(DestParams.Extract, SelectedDB.DirPath, CurExtractionPath);
             }
             else
             {
@@ -320,6 +319,16 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        enum DestParams
+        {
+            Extract, Build, Build_Old, Update
+        }
+
+        enum SourceParams
+        {
+            List, Test
+        }
+
         private void ExCommand(string args)
         {
             // add a function to check to see if the exe is co-located here?
@@ -343,6 +352,46 @@ namespace _3DDBBuilderGUI
             }
         }
 
+        private void ExCommand(SourceParams parameter, string dbdir)
+        {
+            string args;
+            switch (parameter)
+            {
+                case SourceParams.List:
+                    args = @"/objectdir " + "\"" + dbdir + "\"" + @" /parents";
+                    break;
+                case SourceParams.Test:
+                    args = @"/objectdir " + "\"" + dbdir + "\"" + @" /test";
+                    break;
+                default:
+                    return;
+            }
+            ExCommand(args);
+        }
+
+        private void ExCommand(DestParams parameter, string source, string dest)
+        {
+            string args;
+            switch (parameter)
+            {
+                case DestParams.Extract:
+                    args = @"/objectdir " + "\"" + source + "\"" + @" /extract " + "\"" + dest + "\"";
+                    break;
+                case DestParams.Build:
+                    args = @"/objectdir " + "\"" + dest + "\"" + @" /build " + "\"" + source + "\"";
+                    break;
+                case DestParams.Build_Old:
+                    args = @"/objectdir " + "\"" + dest + "\"" + @" /build_old " + "\"" + source + "\"";
+                    break;
+                case DestParams.Update:
+                    args = @"/objectdir " + "\"" + dest + "\"" + @" /update " + "\"" + source + "\"";
+                    break;
+                default:
+                    return;
+            }
+            ExCommand(args);
+        }
+
         private void ResetDirButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -363,14 +412,16 @@ namespace _3DDBBuilderGUI
 
         private void BuildNewButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("This Function has not yet been implemented. Sorry!");
-            MessageBox.Show("The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Beware!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
+            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
+            {
+                ExCommand(DestParams.Build, BuildSource, BuildOutput);
+            }
         }
 
         private void BuildOldButton_Click(object sender, RoutedEventArgs e)
         {
-            string command = @"/objectdir " + "\"" + BuildOutput + "\"" + @" /build_old " + "\"" + BuildSource + "\"";
-            ExCommand(command);
+            ExCommand(DestParams.Build_Old, BuildSource, BuildOutput);
         }
 
         private void BuildSourceSelectButton_Click(object sender, RoutedEventArgs e)
