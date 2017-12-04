@@ -103,14 +103,17 @@ namespace _3DDBBuilderGUI
 
         private string BMSInstall;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propertyname)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
-        }
-
         private string extractionPath;
+
+        private string updatePath;
+
+        private string buildSource;
+
+        private string buildOutput;
+
+        private ObjDB selectedDB;
+
+        public ObservableCollection<ObjDB> DBsList { get; set; }
 
         public string CurExtractionPath
         {
@@ -125,8 +128,6 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        private string updatePath;
-
         public string CurUpdatePath
         {
             get => updatePath;
@@ -139,8 +140,6 @@ namespace _3DDBBuilderGUI
                 }
             }
         }
-
-        private string buildSource;
 
         public string BuildSource
         {
@@ -155,8 +154,6 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        private string buildOutput;
-
         public string BuildOutput
         {
             get => buildOutput;
@@ -169,10 +166,6 @@ namespace _3DDBBuilderGUI
                 }
             }
         }
-
-        public ObservableCollection<ObjDB> DBsList { get; set; }
-
-        private ObjDB selectedDB;
 
         public ObjDB SelectedDB
         {
@@ -190,6 +183,13 @@ namespace _3DDBBuilderGUI
         public string GUIWorDir
         {
             get => Directory.GetCurrentDirectory();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyname)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
         }
 
         private ObjDB GetExistingDB(string dir)
@@ -264,66 +264,6 @@ namespace _3DDBBuilderGUI
                     MessageBox.Show("Could not find the directory specified:" + folder, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-        }
-
-        private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
-        {
-            string dir = GetFolder(true, true, "Select Object Folder...", BMSInstall + @"\Data\Terrdata");
-            if (dir != null && ObjDB.Exists(dir))
-            {
-                AddDB(dir);
-            }
-            if (dir != null && !ObjDB.Exists(dir))
-            {
-                MessageBox.Show("No database was selected as one could not be located in the selected directory: \n\n" + dir, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-
-            
-        }
-
-        private void DestSelectButton_Click(object sender, RoutedEventArgs e)
-        {
-            string dir = GetFolder(false, true, "Select folder to extract Database to...", CurExtractionPath);
-            
-            if (dir != null)
-            {
-                CurExtractionPath = dir;
-            }
-        }
-
-        private void ExtrButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(true, SelectedDB, CurExtractionPath);
-            BuildSource = CurExtractionPath;
-        }
-
-        private void ListParents(object sender, RoutedEventArgs e)
-        {
-            ExCommand(false, SelectedDB);
-        }
-
-        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
-        {
-            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
-            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
-            {
-                BuildCommand(true, BuildSource, BuildOutput);
-            }
-        }
-
-        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
-        {
-            BuildCommand(false, BuildSource, BuildOutput);
-        }
-
-        private void UpdateButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(false, SelectedDB, CurUpdatePath);
-        }
-
-        private void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(true, SelectedDB);
         }
 
         private void ExCommand(string args)
@@ -425,6 +365,64 @@ namespace _3DDBBuilderGUI
                 string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /update " + "\"" + ExtractedFolders + "\"";
                 ExCommand(args);
             }
+        }
+
+        private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(true, true, "Select Object Folder...", BMSInstall + @"\Data\Terrdata");
+            if (dir != null && ObjDB.Exists(dir))
+            {
+                AddDB(dir);
+            }
+            if (dir != null && !ObjDB.Exists(dir))
+            {
+                MessageBox.Show("No database was selected as one could not be located in the selected directory: \n\n" + dir, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void DestSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(false, true, "Select folder to extract Database to...", CurExtractionPath);
+            
+            if (dir != null)
+            {
+                CurExtractionPath = dir;
+            }
+        }
+
+        private void ExtrButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(true, SelectedDB, CurExtractionPath);
+            BuildSource = CurExtractionPath;
+        }
+
+        private void ListParents(object sender, RoutedEventArgs e)
+        {
+            ExCommand(false, SelectedDB);
+        }
+
+        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
+        {
+            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
+            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
+            {
+                BuildCommand(true, BuildSource, BuildOutput);
+            }
+        }
+
+        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
+        {
+            BuildCommand(false, BuildSource, BuildOutput);
+        }
+
+        private void UpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(false, SelectedDB, CurUpdatePath);
+        }
+
+        private void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(true, SelectedDB);
         }
 
         private void ResetExtractionDirButton_Click(object sender, RoutedEventArgs e)
