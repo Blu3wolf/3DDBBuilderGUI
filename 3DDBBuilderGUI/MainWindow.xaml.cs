@@ -84,7 +84,7 @@ namespace _3DDBBuilderGUI
                                     Match match = objmatch.Match(line);
                                     string lobjdir = match.Result("$1");
                                     string objdir = BMSInstall + @"\Data\" + lobjdir;
-                                    DBsList.Add(new ObjDB() { DirPath=objdir });
+                                    DBsList.Add(new ObjDB(objdir));
                                 }
                             }
                         }
@@ -103,14 +103,19 @@ namespace _3DDBBuilderGUI
 
         private string BMSInstall;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propertyname)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
-        }
-
         private string extractionPath;
+
+        private string updatePath;
+
+        private string buildSource;
+
+        private string buildOutput;
+
+        private ObjDB selectedDB;
+
+        private int texturenumber;
+
+        public ObservableCollection<ObjDB> DBsList { get; set; }
 
         public string CurExtractionPath
         {
@@ -125,8 +130,6 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        private string updatePath;
-
         public string CurUpdatePath
         {
             get => updatePath;
@@ -139,8 +142,6 @@ namespace _3DDBBuilderGUI
                 }
             }
         }
-
-        private string buildSource;
 
         public string BuildSource
         {
@@ -155,8 +156,6 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        private string buildOutput;
-
         public string BuildOutput
         {
             get => buildOutput;
@@ -169,10 +168,6 @@ namespace _3DDBBuilderGUI
                 }
             }
         }
-
-        public ObservableCollection<ObjDB> DBsList { get; set; }
-
-        private ObjDB selectedDB;
 
         public ObjDB SelectedDB
         {
@@ -187,9 +182,29 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        public string GUIWorDir
+        public string GUIWorDir // does this actually get used anywhere? Can just remove I think
         {
             get => Directory.GetCurrentDirectory();
+        }
+
+        public int TextureNumber
+        {
+            get => texturenumber;
+            set
+            {
+                if (value != texturenumber)
+                {
+                    texturenumber = value;
+                    NotifyPropertyChanged("TextureNumber");
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyname)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
         }
 
         private ObjDB GetExistingDB(string dir)
@@ -210,7 +225,7 @@ namespace _3DDBBuilderGUI
             SelectedDB = GetExistingDB(dir);
             if (SelectedDB == null)
             {
-                ObjDB objDB = new ObjDB { DirPath = dir };
+                ObjDB objDB = new ObjDB(dir);
                 DBsList.Add(objDB);
                 SelectedDB = objDB;
             }
@@ -266,66 +281,6 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
-        {
-            string dir = GetFolder(true, true, "Select Object Folder...", BMSInstall + @"\Data\Terrdata");
-            if (dir != null && ObjDB.Exists(dir))
-            {
-                AddDB(dir);
-            }
-            if (dir != null && !ObjDB.Exists(dir))
-            {
-                MessageBox.Show("No database was selected as one could not be located in the selected directory: \n\n" + dir, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-
-            
-        }
-
-        private void DestSelectButton_Click(object sender, RoutedEventArgs e)
-        {
-            string dir = GetFolder(false, true, "Select folder to extract Database to...", CurExtractionPath);
-            
-            if (dir != null)
-            {
-                CurExtractionPath = dir;
-            }
-        }
-
-        private void ExtrButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(true, SelectedDB, CurExtractionPath);
-            BuildSource = CurExtractionPath;
-        }
-
-        private void ListParents(object sender, RoutedEventArgs e)
-        {
-            ExCommand(false, SelectedDB);
-        }
-
-        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
-        {
-            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
-            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
-            {
-                BuildCommand(true, BuildSource, BuildOutput);
-            }
-        }
-
-        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
-        {
-            BuildCommand(false, BuildSource, BuildOutput);
-        }
-
-        private void UpdateButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(false, SelectedDB, CurUpdatePath);
-        }
-
-        private void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            ExCommand(true, SelectedDB);
-        }
-
         private void ExCommand(string args)
         {
             // add a function to check to see if the exe is co-located here?
@@ -379,7 +334,8 @@ namespace _3DDBBuilderGUI
 
         private void BuildCommand(bool IsNew, string source, string dest)
         {
-            // check for existence of 256 color BMP file!
+            // how best to check whether the source is a valid extracted DB? 
+            bool InputValid = Directory.Exists(source) && Directory.Exists(dest) && !ObjDB.Exists(dest);
 
             string command;
             if (IsNew)
@@ -390,7 +346,7 @@ namespace _3DDBBuilderGUI
             {
                 command = "/build_old";
             }
-            if (Directory.Exists(source) && Directory.Exists(dest))
+            if (InputValid)
             {
                 string args = @"/objectdir " + "\"" + dest + "\" " + command + " \"" + source + "\"";
                 ExCommand(args);
@@ -417,14 +373,81 @@ namespace _3DDBBuilderGUI
 
             if (IsExtract)
             {
+                // extract DB
                 string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /extract " + "\"" + ExtractedFolders + "\"";
                 ExCommand(args);
+                // write 1x1 texture to dest/Textures directory
+                string texpath = ExtractedFolders + @"\Textures\" + DB.TextureNo.ToString() + ".BMP";
+                WriteTexture(texpath);
             }
             else
             {
                 string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /update " + "\"" + ExtractedFolders + "\"";
                 ExCommand(args);
             }
+        }
+
+        private void WriteTexture(string path)
+        {
+            Properties.Resources.B.Save(path);
+        }
+
+        private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(true, true, "Select Object Folder...", BMSInstall + @"\Data\Terrdata");
+            if (dir != null && ObjDB.Exists(dir))
+            {
+                AddDB(dir);
+            }
+            if (dir != null && !ObjDB.Exists(dir))
+            {
+                MessageBox.Show("No database was selected as one could not be located in the selected directory: \n\n" + dir, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void DestSelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string dir = GetFolder(false, true, "Select folder to extract Database to...", CurExtractionPath);
+            
+            if (dir != null)
+            {
+                CurExtractionPath = dir;
+            }
+        }
+
+        private void ExtrButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(true, SelectedDB, CurExtractionPath);
+            BuildSource = CurExtractionPath;
+        }
+
+        private void ListParents(object sender, RoutedEventArgs e)
+        {
+            ExCommand(false, SelectedDB);
+        }
+
+        private void BuildNewButton_Click(object sender, RoutedEventArgs e)
+        {
+            string Message = "The output of this function is a database which is incompatible with all legacy tools, including LOD Editor. Do you wish to continue?";
+            if (MessageBox.Show(Message, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
+            {
+                BuildCommand(true, BuildSource, BuildOutput);
+            }
+        }
+
+        private void BuildOldButton_Click(object sender, RoutedEventArgs e)
+        {
+            BuildCommand(false, BuildSource, BuildOutput);
+        }
+
+        private void UpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(false, SelectedDB, CurUpdatePath);
+        }
+
+        private void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExCommand(true, SelectedDB);
         }
 
         private void ResetExtractionDirButton_Click(object sender, RoutedEventArgs e)
@@ -500,13 +523,50 @@ namespace _3DDBBuilderGUI
                 throw;
             }
         }
+
+        private void SelTextureFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "Select the KoreaObj folder ";
+            MessageBox.Show(message, "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+            GetFolder(false, true, "Select KoreaObj Folder...", "");
+        }
+
+        private void SetTextureNumberButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public class ObjDB
     {
-        public ObjDB()
+        public ObjDB(string dir)
         {
+            DirPath = dir;
+            // given the obj dir, find the highest number texture ID
+            string texpath = DirPath + "/KoreaObj";
+            string[] filepaths = Directory.GetFiles(texpath, "*.dds");
 
+            TextureNo = 0;
+            foreach (string path in filepaths)
+            {
+                int number;
+                bool result = Int32.TryParse(System.IO.Path.GetFileNameWithoutExtension(path), out number);
+                if (result)
+                {
+                    if (number > TextureNo)
+                    {
+                        TextureNo = number;
+                    }
+                }
+                else
+                {
+                    string message = "Could not successfully parse the desired string as a number: " + System.IO.Path.GetFileNameWithoutExtension(path);
+                }
+            }
+
+            // TextureNo should now be equal to the highest numbered texture in the folder
+            MessageBox.Show(TextureNo.ToString());
+            
         }
 
         public static bool Exists(String FolderName)
@@ -527,5 +587,17 @@ namespace _3DDBBuilderGUI
         }
 
         public string DirPath { get; set; }
+
+        public int TextureNo { get; set; }
+    }
+
+    public class ExtrDB
+    {
+        public ExtrDB()
+        {
+
+        }
+
+
     }
 }
