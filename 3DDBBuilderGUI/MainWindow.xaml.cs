@@ -115,6 +115,8 @@ namespace _3DDBBuilderGUI
 
         private int texturenumber;
 
+        private string texturefolder;
+
         public ObservableCollection<ObjDB> DBsList { get; set; }
 
         public string CurExtractionPath
@@ -196,7 +198,23 @@ namespace _3DDBBuilderGUI
                 {
                     texturenumber = value;
                     NotifyPropertyChanged("TextureNumber");
+                    // Need to update this whenever a new DB is selected to be built
                 }
+            }
+        }
+
+        public string TextureFolder
+        {
+            get => texturefolder;
+            set
+            {
+                if (value != texturefolder)
+                {
+                    texturefolder = value;
+                    // not sure anything relies on that property changing anyway? Oh well
+                    NotifyPropertyChanged("TextureFolder");
+                }
+                TextureNumber = ObjDB.GetHighestTexture(value);
             }
         }
 
@@ -526,14 +544,41 @@ namespace _3DDBBuilderGUI
 
         private void SelTextureFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            string message = "Select the KoreaObj folder ";
+            string message = "Select the folder the database was originally extracted from: ";
             MessageBox.Show(message, "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
-            GetFolder(false, true, "Select KoreaObj Folder...", "");
+            string KoreaObjDir = GetFolder(false, true, "Select Object Folder...", "");
+            if (KoreaObjDir != null)
+            {
+                TextureFolder = KoreaObjDir;
+            }
         }
 
         private void SetTextureNumberButton_Click(object sender, RoutedEventArgs e)
         {
-
+            if (BuildSource == null)
+            {
+                string message = "Select a source folder to build, first.";
+                MessageBox.Show(message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (TextureNumber == 0)
+            {
+                string message = "Specify an existing database, or a texture number, first.";
+                MessageBox.Show(message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            //first, check to see if a texture file exists already
+            string dir = BuildSource + @"\Textures";
+            string[] files = Directory.GetFiles(dir);
+            if (files.Length == 0)
+            {
+                string path = dir + @"\" + TextureNumber.ToString() + ".BMP";
+                WriteTexture(path);
+            }
+            else // a texture file already exists
+            {
+                // rename it to a new name I guess
+            }
         }
     }
 
@@ -542,31 +587,8 @@ namespace _3DDBBuilderGUI
         public ObjDB(string dir)
         {
             DirPath = dir;
-            // given the obj dir, find the highest number texture ID
-            string texpath = DirPath + "/KoreaObj";
-            string[] filepaths = Directory.GetFiles(texpath, "*.dds");
 
-            TextureNo = 0;
-            foreach (string path in filepaths)
-            {
-                int number;
-                bool result = Int32.TryParse(System.IO.Path.GetFileNameWithoutExtension(path), out number);
-                if (result)
-                {
-                    if (number > TextureNo)
-                    {
-                        TextureNo = number;
-                    }
-                }
-                else
-                {
-                    string message = "Could not successfully parse the desired string as a number: " + System.IO.Path.GetFileNameWithoutExtension(path);
-                }
-            }
-
-            // TextureNo should now be equal to the highest numbered texture in the folder
-            MessageBox.Show(TextureNo.ToString());
-            
+            TextureNo = GetHighestTexture(dir);
         }
 
         public static bool Exists(String FolderName)
@@ -579,6 +601,33 @@ namespace _3DDBBuilderGUI
             {
                 return false;
             }
+        }
+
+        public static int GetHighestTexture(string dir)
+        {
+            // dir is the object directory, so get the texture directory
+            string texpath = dir + @"\KoreaObj";
+            string[] filepaths = Directory.GetFiles(texpath, "*.dds");
+            int texno = 0;
+            foreach (string path in filepaths)
+            {
+                int number;
+                bool result = Int32.TryParse(System.IO.Path.GetFileNameWithoutExtension(path), out number);
+                if (result)
+                {
+                    if (number > texno)
+                    {
+                        texno = number;
+                    }
+                }
+                else
+                {
+                    string message = "Could not successfully parse the desired string as a number: " + System.IO.Path.GetFileNameWithoutExtension(path);
+                }
+            }
+
+            return texno;
+
         }
 
         public bool IsValid()
