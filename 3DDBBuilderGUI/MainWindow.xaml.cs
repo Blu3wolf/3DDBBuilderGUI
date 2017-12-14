@@ -373,14 +373,23 @@ namespace _3DDBBuilderGUI
 
             if (IsExtract)
             {
+                // extract DB
                 string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /extract " + "\"" + ExtractedFolders + "\"";
                 ExCommand(args);
+                // write 1x1 texture to dest/Textures directory
+                string texpath = ExtractedFolders + @"\Textures\" + DB.TextureNo.ToString() + ".BMP";
+                WriteTexture(texpath);
             }
             else
             {
                 string args = @"/objectdir " + "\"" + DB.DirPath + "\"" + @" /update " + "\"" + ExtractedFolders + "\"";
                 ExCommand(args);
             }
+        }
+
+        private void WriteTexture(string path)
+        {
+            Properties.Resources.B.Save(path);
         }
 
         private void SourceSelectButton_Click(object sender, RoutedEventArgs e)
