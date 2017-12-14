@@ -84,7 +84,7 @@ namespace _3DDBBuilderGUI
                                     Match match = objmatch.Match(line);
                                     string lobjdir = match.Result("$1");
                                     string objdir = BMSInstall + @"\Data\" + lobjdir;
-                                    DBsList.Add(new ObjDB() { DirPath=objdir });
+                                    DBsList.Add(new ObjDB(objdir));
                                 }
                             }
                         }
@@ -112,6 +112,8 @@ namespace _3DDBBuilderGUI
         private string buildOutput;
 
         private ObjDB selectedDB;
+
+        private int texturenumber;
 
         public ObservableCollection<ObjDB> DBsList { get; set; }
 
@@ -180,9 +182,22 @@ namespace _3DDBBuilderGUI
             }
         }
 
-        public string GUIWorDir
+        public string GUIWorDir // does this actually get used anywhere? Can just remove I think
         {
             get => Directory.GetCurrentDirectory();
+        }
+
+        public int TextureNumber
+        {
+            get => texturenumber;
+            set
+            {
+                if (value != texturenumber)
+                {
+                    texturenumber = value;
+                    NotifyPropertyChanged("TextureNumber");
+                }
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -210,7 +225,7 @@ namespace _3DDBBuilderGUI
             SelectedDB = GetExistingDB(dir);
             if (SelectedDB == null)
             {
-                ObjDB objDB = new ObjDB { DirPath = dir };
+                ObjDB objDB = new ObjDB(dir);
                 DBsList.Add(objDB);
                 SelectedDB = objDB;
             }
@@ -319,7 +334,8 @@ namespace _3DDBBuilderGUI
 
         private void BuildCommand(bool IsNew, string source, string dest)
         {
-            // check for existence of 256 color BMP file!
+            // how best to check whether the source is a valid extracted DB? 
+            bool InputValid = Directory.Exists(source) && Directory.Exists(dest) && !ObjDB.Exists(dest);
 
             string command;
             if (IsNew)
@@ -330,7 +346,7 @@ namespace _3DDBBuilderGUI
             {
                 command = "/build_old";
             }
-            if (Directory.Exists(source) && Directory.Exists(dest))
+            if (InputValid)
             {
                 string args = @"/objectdir " + "\"" + dest + "\" " + command + " \"" + source + "\"";
                 ExCommand(args);
@@ -498,13 +514,34 @@ namespace _3DDBBuilderGUI
                 throw;
             }
         }
+
+        private void SelTextureFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "Select the KoreaObj folder ";
+            MessageBox.Show(message, "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+            GetFolder(false, true, "Select KoreaObj Folder...", "");
+        }
+
+        private void SetTextureNumberButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public class ObjDB
     {
-        public ObjDB()
+        public ObjDB(string dir)
         {
-
+            DirPath = dir;
+            // given the obj dir, find the highest number texture ID
+            string texpath = DirPath + "/KoreaObj";
+            string[] files = Directory.GetFiles(texpath, "*.dds");
+            Array.Sort(files);
+            string highfilename = files.Last();
+            // now given the filename of the highest texture ID, convert that to an integer
+            int length = highfilename.IndexOf(".");
+            TextureNo = Int32.Parse(highfilename.Substring(0, length));
+            // this will only work with well formed input. Needs error handling and/or input validation. TryParse method perhaps.
         }
 
         public static bool Exists(String FolderName)
@@ -525,5 +562,17 @@ namespace _3DDBBuilderGUI
         }
 
         public string DirPath { get; set; }
+
+        public int TextureNo { get; set; }
+    }
+
+    public class ExtrDB
+    {
+        public ExtrDB()
+        {
+
+        }
+
+
     }
 }
