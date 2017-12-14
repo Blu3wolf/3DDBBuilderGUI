@@ -535,13 +535,29 @@ namespace _3DDBBuilderGUI
             DirPath = dir;
             // given the obj dir, find the highest number texture ID
             string texpath = DirPath + "/KoreaObj";
-            string[] files = Directory.GetFiles(texpath, "*.dds");
-            Array.Sort(files);
-            string highfilename = files.Last();
-            // now given the filename of the highest texture ID, convert that to an integer
-            int length = highfilename.IndexOf(".");
-            TextureNo = Int32.Parse(highfilename.Substring(0, length));
-            // this will only work with well formed input. Needs error handling and/or input validation. TryParse method perhaps.
+            string[] filepaths = Directory.GetFiles(texpath, "*.dds");
+
+            TextureNo = 0;
+            foreach (string path in filepaths)
+            {
+                int number;
+                bool result = Int32.TryParse(System.IO.Path.GetFileNameWithoutExtension(path), out number);
+                if (result)
+                {
+                    if (number > TextureNo)
+                    {
+                        TextureNo = number;
+                    }
+                }
+                else
+                {
+                    string message = "Could not successfully parse the desired string as a number: " + System.IO.Path.GetFileNameWithoutExtension(path);
+                }
+            }
+
+            // TextureNo should now be equal to the highest numbered texture in the folder
+            MessageBox.Show(TextureNo.ToString());
+            
         }
 
         public static bool Exists(String FolderName)
