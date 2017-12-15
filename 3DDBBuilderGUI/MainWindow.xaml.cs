@@ -575,9 +575,11 @@ namespace _3DDBBuilderGUI
                 string path = dir + @"\" + TextureNumber.ToString() + ".BMP";
                 WriteTexture(path);
             }
-            else // a texture file already exists
+            else // a texture file already exists - likely case is that a single texture file already exists
             {
                 // rename it to a new name I guess
+                string message = "A texture file already exists in the source /Textures folder. Please delete it and try again.";
+                MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
