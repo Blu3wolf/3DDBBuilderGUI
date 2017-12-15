@@ -77,8 +77,8 @@
                             <TextBox TextWrapping="Wrap" Text="{Binding Mode=TwoWay, Path=BuildOutput}" />
                         </DockPanel>
                         <DockPanel Margin="0,10,0,0">
-                            <Button Content="Select KoreaObj folder" Style="{StaticResource WFButton}" Click="SelTextureFolderButton_Click"/>
-                            <Button Content="Set Texture Number" DockPanel.Dock="Right" Style="{StaticResource WFButton}" Click="SetTextureNumberButton_Click"/>
+                            <Button Content="Select Object Folder" Style="{StaticResource WFButton}" Click="SelTextureFolderButton_Click"/>
+                            <Button Content="Create Texture File" DockPanel.Dock="Right" Style="{StaticResource WFButton}" Click="SetTextureNumberButton_Click"/>
                             <TextBox TextAlignment="Center" Text="{Binding Mode=TwoWay,Path=TextureNumber}"/>
                         </DockPanel>
                         <DockPanel LastChildFill="False" Margin="0,10,0,0">

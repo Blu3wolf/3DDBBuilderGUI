@@ -61,6 +61,16 @@ namespace _3DDBBuilderGUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] _3ddb_builder {
+            get {
+                object obj = ResourceManager.GetObject("_3ddb_builder", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap B {
